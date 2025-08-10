@@ -1,0 +1,23 @@
+// Firebase Setup Script - Browser Compatible Version
+// This script should be run in the browser console or as a separate HTML file
+
+console.log("🔥 Firebase Setup Instructions")
+console.log("=".repeat(50))
+console.log("")
+console.log("Since Firebase v9+ doesn't work directly in Node.js,")
+console.log("please follow these steps to set up your database:")
+console.log("")
+console.log("1. Go to Firebase Console: https://console.firebase.google.com/")
+console.log("2. Select your project: weby-44491")
+console.log("3. Go to Firestore Database")
+console.log("4. Create the following collections:")
+console.log("")
+console.log("📦 COLLECTIONS TO CREATE:")
+console.log("- products")
+console.log("- users")
+console.log("- click_tracking")
+console.log("- site_analytics")
+console.log("")
+console.log("5. Or use the web setup tool at: http://localhost:3000/setup")
+console.log("")
+console.log("🎯 The app will work with mock data until Firebase is set up!")
