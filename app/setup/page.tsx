@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, AlertCircle, Database, Users, BarChart3, Settings, ArrowLeft, Zap, Info } from "lucide-react"
-import { initializeFirebaseServices, getFirebaseStatus, resetFirebase } from "@/lib/firebase"
+import { initializeSupabase, getSupabaseStatus, resetSupabase } from "@/lib/supabaseClient"
 import Link from "next/link"
 
-export default function FirebaseSetup() {
+export default function SupabaseSetup() {
   const [setupStatus, setSetupStatus] = useState({
-    firebase: false,
+    supabase: false,
     products: false,
     users: false,
     analytics: false,
@@ -18,36 +18,36 @@ export default function FirebaseSetup() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [firebaseDetails, setFirebaseDetails] = useState<string>("")
+  const [supabaseDetails, setSupabaseDetails] = useState<string>("")
 
-  const initializeFirebase = async () => {
+  const initializeSupabaseClient = async () => {
     try {
       setLoading(true)
       setError(null)
-      setFirebaseDetails("")
+      setSupabaseDetails("")
 
-      console.log("🔥 Starting Firebase initialization...")
+      console.log("🚀 Starting Supabase initialization...")
 
       // Reset any previous state
-      resetFirebase()
+      resetSupabase()
 
-      const result = await initializeFirebaseServices()
+      const result = await initializeSupabase()
 
       if (result.success) {
-        setSetupStatus((prev) => ({ ...prev, firebase: true }))
-        setFirebaseDetails("Firebase services initialized successfully! ✅")
-        console.log("✅ Firebase initialized successfully!")
+        setSetupStatus((prev) => ({ ...prev, supabase: true }))
+        setSupabaseDetails("Supabase services initialized successfully! ✅")
+        console.log("✅ Supabase initialized successfully!")
       } else {
-        throw new Error(result.error || "Firebase initialization failed")
+        throw new Error(result.error || "Supabase initialization failed")
       }
     } catch (err) {
-      console.error("❌ Error initializing Firebase:", err)
+      console.error("❌ Error initializing Supabase:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
-      setError(`Firebase initialization failed: ${errorMessage}`)
+      setError(`Supabase initialization failed: ${errorMessage}`)
 
-      // Show Firebase status for debugging
-      const status = getFirebaseStatus()
-      setFirebaseDetails(`Debug info: ${JSON.stringify(status, null, 2)}`)
+      // Show Supabase status for debugging
+      const status = getSupabaseStatus()
+      setSupabaseDetails(`Debug info: ${JSON.stringify(status, null, 2)}`)
     } finally {
       setLoading(false)
     }
@@ -58,12 +58,12 @@ export default function FirebaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.firebase) {
-        throw new Error("Please initialize Firebase first")
+      if (!setupStatus.supabase) {
+        throw new Error("Please initialize Supabase first")
       }
 
-      // Simulate Firebase Firestore operations
-      console.log("📦 Setting up products collection...")
+      // Simulate Supabase table creation
+      console.log("📦 Setting up products table...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, products: true }))
@@ -81,12 +81,12 @@ export default function FirebaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.firebase) {
-        throw new Error("Please initialize Firebase first")
+      if (!setupStatus.supabase) {
+        throw new Error("Please initialize Supabase first")
       }
 
-      // Simulate Firebase Auth and Firestore operations
-      console.log("👥 Setting up users collection...")
+      // Simulate Supabase Auth and table operations
+      console.log("👥 Setting up users table...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, users: true }))
@@ -104,12 +104,12 @@ export default function FirebaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.firebase) {
-        throw new Error("Please initialize Firebase first")
+      if (!setupStatus.supabase) {
+        throw new Error("Please initialize Supabase first")
       }
 
-      // Simulate Firebase Analytics setup
-      console.log("📊 Setting up analytics collection...")
+      // Simulate Supabase analytics setup
+      console.log("📊 Setting up analytics table...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
@@ -127,14 +127,14 @@ export default function FirebaseSetup() {
       setLoading(true)
       setError(null)
 
-      console.log("🚀 Starting complete Firebase setup...")
+      console.log("🚀 Starting complete Supabase setup...")
 
-      // Initialize Firebase first
-      const firebaseResult = await initializeFirebaseServices()
-      if (!firebaseResult.success) {
-        throw new Error(firebaseResult.error || "Firebase initialization failed")
+      // Initialize Supabase first
+      const supabaseResult = await initializeSupabase()
+      if (!supabaseResult.success) {
+        throw new Error(supabaseResult.error || "Supabase initialization failed")
       }
-      setSetupStatus((prev) => ({ ...prev, firebase: true }))
+      setSetupStatus((prev) => ({ ...prev, supabase: true }))
 
       // Setup other components
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -147,7 +147,7 @@ export default function FirebaseSetup() {
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
 
       setSetupStatus((prev) => ({ ...prev, complete: true }))
-      setFirebaseDetails("🎉 Complete Firebase setup finished successfully!")
+      setSupabaseDetails("🎉 Complete Supabase setup finished successfully!")
       console.log("🎉 Complete setup finished!")
     } catch (err) {
       console.error("❌ Complete setup failed:", err)
@@ -158,20 +158,20 @@ export default function FirebaseSetup() {
     }
   }
 
-  const skipFirebaseSetup = () => {
+  const skipSupabaseSetup = () => {
     setSetupStatus({
-      firebase: false,
+      supabase: false,
       products: true,
       users: true,
       analytics: true,
       complete: true,
     })
-    setFirebaseDetails("✅ Skipped Firebase setup - Demo mode will continue working perfectly!")
+    setSupabaseDetails("✅ Skipped Supabase setup - Demo mode will continue working perfectly!")
     setError(null)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-red-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-900 p-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -182,8 +182,8 @@ export default function FirebaseSetup() {
             </Button>
           </Link>
           <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-white mb-4">🔥 Firebase Setup</h1>
-            <p className="text-red-200 text-lg">Optional Firebase initialization for production deployment</p>
+            <h1 className="text-4xl font-bold text-white mb-4">🚀 Supabase Setup</h1>
+            <p className="text-green-200 text-lg">Optional Supabase initialization for production deployment</p>
           </div>
         </div>
 
@@ -200,8 +200,8 @@ export default function FirebaseSetup() {
                   </p>
                 </div>
               </div>
-              <Button onClick={skipFirebaseSetup} variant="outline" className="bg-transparent">
-                Skip Firebase Setup
+              <Button onClick={skipSupabaseSetup} variant="outline" className="bg-transparent">
+                Skip Supabase Setup
               </Button>
             </div>
           </CardContent>
@@ -213,12 +213,12 @@ export default function FirebaseSetup() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-red-600">
                   <AlertCircle className="h-5 w-5" />
-                  <span className="font-medium">Firebase Setup Error</span>
+                  <span className="font-medium">Supabase Setup Error</span>
                 </div>
                 <p className="text-sm text-red-700">{error}</p>
                 <div className="bg-red-50 rounded p-3 mt-2">
                   <p className="text-xs text-red-600">
-                    <strong>Don't worry!</strong> Your store works perfectly without Firebase. This setup is only needed
+                    <strong>Don't worry!</strong> Your store works perfectly without Supabase. This setup is only needed
                     for production deployment with real-time features.
                   </p>
                 </div>
@@ -227,48 +227,48 @@ export default function FirebaseSetup() {
           </Card>
         )}
 
-        {firebaseDetails && (
+        {supabaseDetails && (
           <Card className="mb-6 border-blue-500">
             <CardContent className="p-4">
               <div className="flex items-start space-x-2 text-blue-600">
                 <Info className="h-5 w-5 mt-0.5" />
                 <div>
-                  <span className="font-medium">Firebase Status</span>
-                  <pre className="text-xs text-blue-700 mt-1 whitespace-pre-wrap">{firebaseDetails}</pre>
+                  <span className="font-medium">Supabase Status</span>
+                  <pre className="text-xs text-blue-700 mt-1 whitespace-pre-wrap">{supabaseDetails}</pre>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Firebase Initialization */}
+        {/* Supabase Initialization */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Zap className="h-5 w-5" />
-              <span>Initialize Firebase Services</span>
-              {setupStatus.firebase && <CheckCircle className="h-5 w-5 text-green-600" />}
+              <span>Initialize Supabase Services</span>
+              {setupStatus.supabase && <CheckCircle className="h-5 w-5 text-green-600" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Connect to Firebase for production features (optional - your store already works!)
+              Connect to Supabase for production features (optional - your store already works!)
             </p>
             <div className="flex space-x-2">
               <Button
-                onClick={initializeFirebase}
-                disabled={loading || setupStatus.firebase}
+                onClick={initializeSupabaseClient}
+                disabled={loading || setupStatus.supabase}
                 className="flex-1"
-                variant={setupStatus.firebase ? "secondary" : "default"}
+                variant={setupStatus.supabase ? "secondary" : "default"}
               >
-                {setupStatus.firebase ? "✅ Firebase Ready" : loading ? "Initializing..." : "Initialize Firebase"}
+                {setupStatus.supabase ? "✅ Supabase Ready" : loading ? "Initializing..." : "Initialize Supabase"}
               </Button>
               <Button
                 onClick={() => {
-                  resetFirebase()
-                  setSetupStatus((prev) => ({ ...prev, firebase: false }))
+                  resetSupabase()
+                  setSetupStatus((prev) => ({ ...prev, supabase: false }))
                   setError(null)
-                  setFirebaseDetails("")
+                  setSupabaseDetails("")
                 }}
                 variant="outline"
                 disabled={loading}
@@ -291,7 +291,7 @@ export default function FirebaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup products collection in Firebase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup products table in Supabase</p>
               <Button
                 onClick={setupProducts}
                 disabled={loading || setupStatus.products}
@@ -313,7 +313,7 @@ export default function FirebaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup user authentication in Firebase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup user authentication in Supabase</p>
               <Button
                 onClick={setupUsers}
                 disabled={loading || setupStatus.users}
@@ -335,7 +335,7 @@ export default function FirebaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup analytics collection in Firebase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup analytics table in Supabase</p>
               <Button
                 onClick={setupAnalytics}
                 disabled={loading || setupStatus.analytics}
@@ -353,17 +353,17 @@ export default function FirebaseSetup() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Settings className="h-5 w-5" />
-              <span>Complete Firebase Setup</span>
+              <span>Complete Supabase Setup</span>
               {setupStatus.complete && <CheckCircle className="h-5 w-5 text-green-600" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div>
-                <p className="text-gray-600 mb-2">Initialize all Firebase components at once</p>
+                <p className="text-gray-600 mb-2">Initialize all Supabase components at once</p>
                 <div className="flex space-x-2">
-                  <Badge variant={setupStatus.firebase ? "default" : "secondary"}>
-                    Firebase {setupStatus.firebase ? "✅" : "⏳"}
+                  <Badge variant={setupStatus.supabase ? "default" : "secondary"}>
+                    Supabase {setupStatus.supabase ? "✅" : "⏳"}
                   </Badge>
                   <Badge variant={setupStatus.products ? "default" : "secondary"}>
                     Products {setupStatus.products ? "✅" : "⏳"}
@@ -400,7 +400,7 @@ export default function FirebaseSetup() {
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
                   <strong>✅ Your StyleStore is 100% functional!</strong> All features work perfectly in demo mode.
-                  Firebase setup is purely optional for production deployment.
+                  Supabase setup is purely optional for production deployment.
                 </p>
               </div>
 
@@ -428,19 +428,20 @@ export default function FirebaseSetup() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Firebase Benefits (When Working):</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Supabase Benefits (When Working):</h3>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
                   <li>☁️ Real-time data synchronization</li>
-                  <li>🖼️ Cloud storage for product images</li>
+                  <li>🖼️ Storage for product images</li>
                   <li>📈 Scalable database infrastructure</li>
                   <li>🔐 Production user authentication</li>
                   <li>🚀 Ready for live deployment</li>
+                  <li>🔍 Postgres SQL database</li>
                 </ul>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>💡 Pro Tip:</strong> Firebase setup can be tricky and is completely optional. Your demo store
+                  <strong>💡 Pro Tip:</strong> Supabase setup can be tricky and is completely optional. Your demo store
                   has all the features you need to test and showcase the platform!
                 </p>
               </div>
