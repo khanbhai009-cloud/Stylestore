@@ -2,7 +2,7 @@ import { supabase } from "./supabaseClient";
 import { productStore } from "./productStore";
 import { StorageService } from "./storageService";
 import type { Product, User, SiteAnalytics } from "./types";
-
+ 
 // Product Services
 export const productService = {
   // Get all products
