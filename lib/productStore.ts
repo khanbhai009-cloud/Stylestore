@@ -1,7 +1,7 @@
-import type { Product } from "./firebase"
+import type { Product } from "./firebase";
 
-// Add these lines RIGHT AFTER IMPORTS ▼
-const getLocalStorageProducts = () => {
+// Storage helpers
+const getLocalStorageProducts = (): Product[] | null => {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem('products');
     return saved ? JSON.parse(saved) : null;
@@ -15,9 +15,8 @@ const setLocalStorageProducts = (products: Product[]) => {
   }
 };
 
-// Global product store for demo mode
 class ProductStore {
-  private products: Product[] = [
+  private products: Product[] = getLocalStorageProducts() || [
     {
       id: "1",
       name: "Premium Smart Watch",
@@ -154,124 +153,97 @@ class ProductStore {
       created_at: "2024-01-01T00:00:00Z",
       updated_at: "2024-01-01T00:00:00Z",
     },
-  ]
+  ];
 
-  // Replace products array with this ▼
-products: getLocalStorageProducts() || [
-  { id: 1, name: 'Product 1', price: 100 },
-  { id: 2, name: 'Product 2', price: 200 },
-],
-  // Get all products
+  private listeners: ((products: Product[]) => void)[] = [];
+
   getProducts(): Product[] {
-    return [...this.products].filter((p) => p.is_active)
+    return [...this.products].filter((p) => p.is_active);
   }
 
-  // Get product by ID
   getProduct(id: string): Product | null {
-    return this.products.find((p) => p.id === id) || null
+    return this.products.find((p) => p.id === id) || null;
   }
 
-  // Add new product
   addProduct(product: Omit<Product, "id">): string {
     const newProduct: Product = {
       ...product,
       id: `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }
+    };
 
-    this.products.unshift(newProduct) // Add to beginning for visibility
-    this.notifyListeners()
-
-    console.log(`✅ Added new product: ${newProduct.name} (ID: ${newProduct.id})`)
-    return newProduct.id
+    this.products.unshift(newProduct);
+    setLocalStorageProducts(this.products);
+    this.notifyListeners();
+    return newProduct.id;
   }
 
-  // Update product
   updateProduct(id: string, updates: Partial<Product>): boolean {
-    const index = this.products.findIndex((p) => p.id === id)
-    if (index === -1) return false
+    const index = this.products.findIndex((p) => p.id === id);
+    if (index === -1) return false;
 
     this.products[index] = {
       ...this.products[index],
       ...updates,
       updated_at: new Date().toISOString(),
-    }
+    };
 
-    this.notifyListeners()
-    console.log(`✅ Updated product: ${this.products[index].name}`)
-setLocalStorageProducts(newProducts);
-     return true
+    setLocalStorageProducts(this.products);
+    this.notifyListeners();
+    return true;
   }
-// Add this line at the END of addProduct ▼
-setLocalStorageProducts(newProducts);
 
-  // Delete product
   deleteProduct(id: string): boolean {
-    const index = this.products.findIndex((p) => p.id === id)
-    if (index === -1) return false
+    const index = this.products.findIndex((p) => p.id === id);
+    if (index === -1) return false;
 
-    const deletedProduct = this.products[index]
-    this.products.splice(index, 1)
-    this.notifyListeners()
-
-    console.log(`✅ Deleted product: ${deletedProduct.name}`)
-  setLocalStorageProducts(newProducts);
-  return true
+    this.products.splice(index, 1);
+    setLocalStorageProducts(this.products);
+    this.notifyListeners();
+    return true;
   }
 
-
-  // Increment clicks
   incrementClicks(id: string): boolean {
-    const product = this.products.find((p) => p.id === id)
-    if (!product) return false
+    const product = this.products.find((p) => p.id === id);
+    if (!product) return false;
 
-    product.clicks += 1
-    this.notifyListeners()
-
-    console.log(`✅ Incremented clicks for: ${product.name} (${product.clicks} total)`)
-    return true
+    product.clicks += 1;
+    this.notifyListeners();
+    return true;
   }
 
-  // Subscribe to changes
   subscribe(listener: (products: Product[]) => void): () => void {
-    this.listeners.push(listener)
-
-    // Return unsubscribe function
+    this.listeners.push(listener);
     return () => {
-      const index = this.listeners.indexOf(listener)
+      const index = this.listeners.indexOf(listener);
       if (index > -1) {
-        this.listeners.splice(index, 1)
+        this.listeners.splice(index, 1);
       }
-    }
+    };
   }
 
-  // Notify all listeners
   private notifyListeners() {
-    const activeProducts = this.getProducts()
+    const activeProducts = this.getProducts();
     this.listeners.forEach((listener) => {
       try {
-        listener(activeProducts)
+        listener(activeProducts);
       } catch (error) {
-        console.error("Error notifying product store listener:", error)
+        console.error("Error notifying product store listener:", error);
       }
-    })
+    });
   }
 
-  // Get stats
   getStats() {
-    const activeProducts = this.getProducts()
+    const activeProducts = this.getProducts();
     return {
       total: activeProducts.length,
       totalClicks: activeProducts.reduce((sum, p) => sum + p.clicks, 0),
       categories: [...new Set(activeProducts.map((p) => p.category))].length,
       avgPrice: activeProducts.reduce((sum, p) => sum + p.price, 0) / activeProducts.length,
-    }
+    };
   }
 }
 
-// Create singleton instance
-export const productStore = new ProductStore()
-
-// Export for easy access
-export default productStore
+export const productStore = new ProductStore();
+export default productStore;
