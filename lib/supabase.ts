@@ -1,8 +1,13 @@
-// Supabase configuration
-const supabaseConfig = {
-  url: "https://mmzwfdymdsqsxfbhuxtz.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tendmZHltZHNxc3hmYmh1eHR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4OTIwMzksImV4cCI6MjA3MDQ2ODAzOX0.ELZED7ojvvUtZgZTIdUmOaJ8vPE9v_Ox5GdBlXeEkuc",
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL and Anon Key must be defined in environment variables');
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Supabase services - initially null
 let supabaseClient: any = null
