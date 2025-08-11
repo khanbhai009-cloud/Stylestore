@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Heart, Star, ShoppingCart, ImageIcon } from "lucide-react"
-import type { Product } from "@/lib/firebase"
+import type { Product } from "@/lib/supabaseClient"
 
 interface ProductCardProps {
   product: Product
@@ -17,24 +17,8 @@ export default function ProductCard({ product, onProductClick, viewMode = "grid"
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
 
-  // Like button handler with backend update
-  const handleLike = async () => {
-    setIsLiked(!isLiked)
-    try {
-      await fetch(`/api/products/${product.id}/like`, { method: "POST" })
-    } catch (err) {
-      console.error("Failed to update likes", err)
-    }
-  }
-
-  // Buy now click handler with backend update
-  const handleBuyNowClick = async () => {
+  const handleBuyNowClick = () => {
     onProductClick(product.id)
-    try {
-      await fetch(`/api/products/${product.id}/click`, { method: "POST" })
-    } catch (err) {
-      console.error("Failed to update clicks", err)
-    }
     window.open(product.affiliate_link, "_blank")
   }
 
@@ -141,7 +125,7 @@ export default function ProductCard({ product, onProductClick, viewMode = "grid"
               </div>
 
               {/* Like Button */}
-              <Button variant="ghost" size="icon" onClick={handleLike} className="ml-4">
+              <Button variant="ghost" size="icon" onClick={() => setIsLiked(!isLiked)} className="ml-4">
                 <Heart className={`h-5 w-5 ${isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
               </Button>
             </div>
@@ -226,7 +210,7 @@ export default function ProductCard({ product, onProductClick, viewMode = "grid"
           variant="ghost"
           size="icon"
           className="absolute bottom-2 right-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-          onClick={handleLike}
+          onClick={() => setIsLiked(!isLiked)}
         >
           <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-600 dark:text-gray-400"}`} />
         </Button>
