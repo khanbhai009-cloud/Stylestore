@@ -1,6 +1,6 @@
 // Supabase configuration
 const supabaseConfig = {
-  url: "https://your-project.supabase.co",
+  url: "https://mmzwfdymdsqsxfbhuxtz.supabase.co",
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tendmZHltZHNxc3hmYmh1eHR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4OTIwMzksImV4cCI6MjA3MDQ2ODAzOX0.ELZED7ojvvUtZgZTIdUmOaJ8vPE9v_Ox5GdBlXeEkuc",
 }
 
