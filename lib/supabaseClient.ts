@@ -52,9 +52,53 @@ export const resetSupabase = () => {
   supabaseInitialized = false;
 };
 
-// Types (same as before)
+// Types for our data models (same as before)
 export interface Product {
-  id: string;
-  name: string;
-  // ... (remaining types unchanged)
+  id: string
+  name: string
+  description: string
+  price: number
+  original_price?: number
+  image_url: string
+  category: "watches" | "pants" | "jeans" | "kurta" | "health-fitness" | "beauty"
+  tags: string[]
+  affiliate_link: string
+  clicks: number
+  is_active: boolean
+  discount_percentage: number
+  discount_amount: number
+  created_at: string
+  updated_at: string
+}
+
+export interface User {
+  id: string
+  email: string
+  role: "user" | "admin"
+  created_at: string
+  updated_at: string
+}
+
+export interface ClickTracking {
+  id: string
+  product_id: string
+  user_ip: string
+  user_agent: string
+  clicked_at: string
+}
+
+export interface SiteAnalytics {
+  id: string
+  total_visitors: number
+  total_clicks: number
+  date: string
+  created_at: string
+}
+
+export interface ProductAnalytics {
+  product_id: string
+  product_name: string
+  total_clicks: number
+  category: string
+  price: number
 }
