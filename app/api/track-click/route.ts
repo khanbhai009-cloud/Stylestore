@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { analyticsService } from "@/lib/subabaseService"
+import { analyticsService } from "@/lib/supabaseService"
 
 export async function POST(request: NextRequest) {
   try {
