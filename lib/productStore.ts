@@ -202,6 +202,8 @@ products: getLocalStorageProducts() || [
     console.log(`✅ Updated product: ${this.products[index].name}`)
     return true
   }
+// Add this line at the END of addProduct ▼
+setLocalStorageProducts(newProducts);
 
   // Delete product
   deleteProduct(id: string): boolean {
@@ -215,6 +217,8 @@ products: getLocalStorageProducts() || [
     console.log(`✅ Deleted product: ${deletedProduct.name}`)
     return true
   }
+// Add this line at the END of addProduct ▼
+setLocalStorageProducts(newProducts);
 
   // Increment clicks
   incrementClicks(id: string): boolean {
