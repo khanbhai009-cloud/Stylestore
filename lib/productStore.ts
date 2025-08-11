@@ -1,5 +1,20 @@
 import type { Product } from "./firebase"
 
+// Add these lines RIGHT AFTER IMPORTS ▼
+const getLocalStorageProducts = () => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('products');
+    return saved ? JSON.parse(saved) : null;
+  }
+  return null;
+};
+
+const setLocalStorageProducts = (products: Product[]) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('products', JSON.stringify(products));
+  }
+};
+
 // Global product store for demo mode
 class ProductStore {
   private products: Product[] = [
