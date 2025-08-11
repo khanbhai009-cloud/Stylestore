@@ -27,7 +27,7 @@ export async function signIn(email: string, password: string) {
       }
     }
 
-    // Try custom authentication with Firebase
+    // Try custom authentication with supabase
     const userData = await userService.getUserByEmail(email)
 
     if (!userData) {
