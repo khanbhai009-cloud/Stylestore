@@ -1,407 +1,415 @@
-import { getFirebaseDb, isFirebaseAvailable, type Product, type User, type SiteAnalytics } from "./firebase"
-import { productStore } from "./productStore"
-import { StorageService } from "./storageService"
-
-// Mock data fallback for when Firebase is not available
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    name: "Premium Smart Watch",
-    price: 299.99,
-    original_price: 399.99,
-    image_url: "/smart-watch.png",
-    description: "Advanced fitness tracking with heart rate monitor and GPS",
-    category: "watches",
-    tags: ["New", "Best Seller"],
-    affiliate_link: "https://example.com/product1",
-    clicks: 156,
-    is_active: true,
-    discount_percentage: 25,
-    discount_amount: 100,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "2",
-    name: "Classic Denim Jeans",
-    price: 79.99,
-    original_price: 119.99,
-    image_url: "/denim-jeans.png",
-    description: "Premium quality denim jeans with perfect fit and comfort",
-    category: "jeans",
-    tags: ["Limited Offer"],
-    affiliate_link: "https://example.com/product2",
-    clicks: 89,
-    is_active: true,
-    discount_percentage: 33,
-    discount_amount: 40,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "3",
-    name: "Elegant Cotton Kurta",
-    price: 45.99,
-    original_price: 69.99,
-    image_url: "/cotton-kurta.png",
-    description: "Traditional cotton kurta with modern design and comfort",
-    category: "kurta",
-    tags: ["New"],
-    affiliate_link: "https://example.com/product3",
-    clicks: 67,
-    is_active: true,
-    discount_percentage: 34,
-    discount_amount: 24,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "4",
-    name: "Formal Dress Pants",
-    price: 89.99,
-    original_price: 129.99,
-    image_url: "/dress-pants.png",
-    description: "Professional dress pants perfect for office and formal events",
-    category: "pants",
-    tags: ["Best Seller"],
-    affiliate_link: "https://example.com/product4",
-    clicks: 134,
-    is_active: true,
-    discount_percentage: 31,
-    discount_amount: 40,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "5",
-    name: "Yoga Mat Premium",
-    price: 39.99,
-    original_price: 59.99,
-    image_url: "/yoga-mat.png",
-    description: "Non-slip premium yoga mat for all your fitness needs",
-    category: "health-fitness",
-    tags: ["Limited Offer"],
-    affiliate_link: "https://example.com/product5",
-    clicks: 203,
-    is_active: true,
-    discount_percentage: 33,
-    discount_amount: 20,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "6",
-    name: "Luxury Face Cream",
-    price: 149.99,
-    original_price: 199.99,
-    image_url: "/face-cream.png",
-    description: "Anti-aging luxury face cream with natural ingredients",
-    category: "beauty",
-    tags: ["New", "Best Seller"],
-    affiliate_link: "https://example.com/product6",
-    clicks: 98,
-    is_active: true,
-    discount_percentage: 25,
-    discount_amount: 50,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "7",
-    name: "Protein Powder",
-    price: 59.99,
-    original_price: 79.99,
-    image_url: "/protein-powder.png",
-    description: "High-quality whey protein for muscle building and recovery",
-    category: "health-fitness",
-    tags: ["Best Seller"],
-    affiliate_link: "https://example.com/product7",
-    clicks: 176,
-    is_active: true,
-    discount_percentage: 25,
-    discount_amount: 20,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: "8",
-    name: "Vintage Leather Watch",
-    price: 199.99,
-    original_price: 299.99,
-    image_url: "/leather-watch.png",
-    description: "Classic vintage leather watch with automatic movement",
-    category: "watches",
-    tags: ["Limited Offer"],
-    affiliate_link: "https://example.com/product8",
-    clicks: 145,
-    is_active: true,
-    discount_percentage: 33,
-    discount_amount: 100,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-  },
-]
+import { supabase } from "./supabaseClient";
+import { productStore } from "./productStore";
+import { StorageService } from "./storageService";
+import type { Product, User, SiteAnalytics } from "./types";
 
 // Product Services
 export const productService = {
   // Get all products
   async getProducts(): Promise<Product[]> {
-    return productStore.getProducts()
+    return productStore.getProducts();
   },
 
   // Get product by ID
   async getProduct(id: string): Promise<Product | null> {
-    return productStore.getProduct(id)
+    return productStore.getProduct(id);
   },
 
   // Add new product with enhanced error handling
   async addProduct(product: Omit<Product, "id">): Promise<string | null> {
     try {
-      console.log("🔄 Adding product:", product.name)
+      console.log("🔄 Adding product:", product.name);
 
       // Validate required fields
       if (!product.name?.trim()) {
-        throw new Error("Product name is required")
+        throw new Error("Product name is required");
       }
       if (!product.description?.trim()) {
-        throw new Error("Product description is required")
+        throw new Error("Product description is required");
       }
       if (!product.price || product.price <= 0) {
-        throw new Error("Valid price is required")
+        throw new Error("Valid price is required");
       }
       if (!product.affiliate_link?.trim()) {
-        throw new Error("Affiliate link is required")
+        throw new Error("Affiliate link is required");
       }
 
       // Ensure image URL exists
       if (!product.image_url) {
-        product.image_url = `/placeholder.svg?height=400&width=400&text=${encodeURIComponent(product.name)}`
+        product.image_url = `/placeholder.svg?height=400&width=400&text=${encodeURIComponent(product.name)}`;
       }
 
-      // Try Firebase first if available
-      if (isFirebaseAvailable()) {
-        try {
-          const db = getFirebaseDb()
-          if (db) {
-            const { collection, addDoc, serverTimestamp } = await import("firebase/firestore")
+      // Try Supabase first
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert({
+            ...product,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select();
 
-            const docRef = await addDoc(collection(db, "products"), {
-              ...product,
-              created_at: serverTimestamp(),
-              updated_at: serverTimestamp(),
-            })
+        if (error) throw error;
 
-            // Also add to local store for immediate display
-            const localId = productStore.addProduct({
-              ...product,
-              id: docRef.id,
-            })
-
-            console.log("✅ Product added to both Firebase and local store")
-            return docRef.id
-          }
-        } catch (error) {
-          console.error("Firebase add failed, using local store:", error)
+        if (data && data[0]) {
+          // Also add to local store for immediate display
+          productStore.addProduct(data[0]);
+          console.log("✅ Product added to both Supabase and local store");
+          return data[0].id;
         }
+      } catch (error) {
+        console.error("Supabase add failed, using local store:", error);
       }
 
       // Fallback to local store
-      const localId = productStore.addProduct(product)
-      console.log("✅ Product added to local store (demo mode)")
-      return localId
+      const localId = productStore.addProduct(product);
+      console.log("✅ Product added to local store (demo mode)");
+      return localId;
     } catch (error) {
-      console.error("❌ Error adding product:", error)
-      throw error // Re-throw to be handled by the UI
+      console.error("❌ Error adding product:", error);
+      throw error; // Re-throw to be handled by the UI
     }
   },
 
   // Update product
   async updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
     try {
-      // Try Firebase first if available
-      if (isFirebaseAvailable()) {
-        try {
-          const db = getFirebaseDb()
-          if (db) {
-            const { doc, updateDoc, serverTimestamp } = await import("firebase/firestore")
+      // Try Supabase first
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id);
 
-            const docRef = doc(db, "products", id)
-            await updateDoc(docRef, {
-              ...updates,
-              updated_at: serverTimestamp(),
-            })
+        if (error) throw error;
 
-            // Also update local store
-            productStore.updateProduct(id, updates)
-            console.log("✅ Product updated in both Firebase and local store")
-            return true
-          }
-        } catch (error) {
-          console.error("Firebase update failed, using local store:", error)
-        }
+        // Also update local store
+        productStore.updateProduct(id, updates);
+        console.log("✅ Product updated in both Supabase and local store");
+        return true;
+      } catch (error) {
+        console.error("Supabase update failed, using local store:", error);
       }
 
       // Fallback to local store
-      const success = productStore.updateProduct(id, updates)
-      console.log("✅ Product updated in local store (demo mode)")
-      return success
+      const success = productStore.updateProduct(id, updates);
+      console.log("✅ Product updated in local store (demo mode)");
+      return success;
     } catch (error) {
-      console.error("❌ Error updating product:", error)
-      return false
+      console.error("❌ Error updating product:", error);
+      return false;
     }
   },
 
   // Delete product
   async deleteProduct(id: string): Promise<boolean> {
     try {
-      // Try Firebase first if available
-      if (isFirebaseAvailable()) {
-        try {
-          const db = getFirebaseDb()
-          if (db) {
-            const { doc, deleteDoc } = await import("firebase/firestore")
+      // Try Supabase first
+      try {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
 
-            await deleteDoc(doc(db, "products", id))
+        if (error) throw error;
 
-            // Also delete from local store
-            productStore.deleteProduct(id)
-            console.log("✅ Product deleted from both Firebase and local store")
-            return true
-          }
-        } catch (error) {
-          console.error("Firebase delete failed, using local store:", error)
-        }
+        // Also delete from local store
+        productStore.deleteProduct(id);
+        console.log("✅ Product deleted from both Supabase and local store");
+        return true;
+      } catch (error) {
+        console.error("Supabase delete failed, using local store:", error);
       }
 
       // Fallback to local store
-      const success = productStore.deleteProduct(id)
-      console.log("✅ Product deleted from local store (demo mode)")
-      return success
+      const success = productStore.deleteProduct(id);
+      console.log("✅ Product deleted from local store (demo mode)");
+      return success;
     } catch (error) {
-      console.error("❌ Error deleting product:", error)
-      return false
+      console.error("❌ Error deleting product:", error);
+      return false;
     }
   },
 
   // Increment product clicks
   async incrementClicks(id: string): Promise<boolean> {
     // Always update local store for immediate feedback
-    const success = productStore.incrementClicks(id)
+    const success = productStore.incrementClicks(id);
 
-    // Try Firebase in background if available
-    if (isFirebaseAvailable()) {
-      try {
-        const db = getFirebaseDb()
-        if (db) {
-          const { doc, updateDoc, increment } = await import("firebase/firestore")
-          const docRef = doc(db, "products", id)
-          await updateDoc(docRef, {
-            clicks: increment(1),
-            updated_at: new Date(),
-          })
-          console.log("✅ Click count updated in Firebase")
-        }
-      } catch (error) {
-        console.error("Firebase click update failed (local store still updated):", error)
-      }
+    // Try Supabase in background
+    try {
+      // First get current clicks value
+      const { data: productData, error: fetchError } = await supabase
+        .from('products')
+        .select('clicks')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentClicks = productData?.clicks || 0;
+
+      const { error } = await supabase
+        .from('products')
+        .update({
+          clicks: currentClicks + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      console.log("✅ Click count updated in Supabase");
+    } catch (error) {
+      console.error("Supabase click update failed (local store still updated):", error);
     }
 
-    return success
+    return success;
   },
 
   // Subscribe to product changes
   subscribe(callback: (products: Product[]) => void): () => void {
-    return productStore.subscribe(callback)
+    return productStore.subscribe(callback);
   },
 
   // Get product statistics
   getStats() {
-    return productStore.getStats()
+    return productStore.getStats();
   },
-}
+};
 
 // User Services
 export const userService = {
   // Get user by email
   async getUserByEmail(email: string): Promise<User | null> {
-    // Check for the updated admin email
-    if (email === "akk116636@gmail.com") {
-      return {
-        id: "admin-1",
-        email: "akk116636@gmail.com",
-        role: "admin",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      // Check for the admin email as fallback
+      if (!data && email === "akk116636@gmail.com") {
+        return {
+          id: "admin-1",
+          email: "akk116636@gmail.com",
+          role: "admin",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
       }
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      return null;
     }
-    return null
   },
 
-  // Add new user (Firebase only)
+  // Add new user
   async addUser(user: Omit<User, "id">): Promise<string | null> {
-    if (!isFirebaseAvailable()) {
-      console.warn("Firebase not available for adding user")
-      return null
-    }
-
     try {
-      const db = getFirebaseDb()
-      if (!db) return null
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          ...user,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
-      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore")
+      if (error) throw error;
 
-      const docRef = await addDoc(collection(db, "users"), {
-        ...user,
-        created_at: serverTimestamp(),
-        updated_at: serverTimestamp(),
-      })
-      return docRef.id
+      return data.id;
     } catch (error) {
-      console.error("Error adding user:", error)
-      return null
+      console.error("Error adding user:", error);
+      return null;
     }
   },
 
   // Get all users
   async getUsers(): Promise<User[]> {
-    return [
-      {
-        id: "admin-1",
-        email: "akk116636@gmail.com",
-        role: "admin",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    ]
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*');
+
+      if (error) throw error;
+
+      // Include admin user if not present
+      const adminExists = data?.some(user => user.email === "akk116636@gmail.com");
+      if (!adminExists) {
+        return [
+          ...(data || []),
+          {
+            id: "admin-1",
+            email: "akk116636@gmail.com",
+            role: "admin",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      return [];
+    }
   },
-}
+};
 
 // Analytics Services
 export const analyticsService = {
   // Track product click
   async trackClick(productId: string, userIp: string, userAgent: string): Promise<boolean> {
-    console.log(`Mock: Tracking click for product ${productId}`)
-    return true
+    try {
+      // First get the current analytics record for today
+      const today = new Date().toISOString().split('T')[0];
+      const { data: existingData, error: fetchError } = await supabase
+        .from('analytics')
+        .select('*')
+        .eq('date', today)
+        .maybeSingle();
+
+      let totalClicks = 1;
+      let totalVisitors = 1;
+
+      if (existingData) {
+        totalClicks = existingData.total_clicks + 1;
+        totalVisitors = existingData.total_visitors;
+        
+        // Check if this is a new visitor (simplified)
+        const { error: updateError } = await supabase
+          .from('analytics')
+          .update({
+            total_clicks: totalClicks,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingData.id);
+
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('analytics')
+          .insert({
+            date: today,
+            total_visitors: 1,
+            total_clicks: 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      // Also track the click event
+      const { error: clickError } = await supabase
+        .from('click_events')
+        .insert({
+          product_id: productId,
+          user_ip: userIp,
+          user_agent: userAgent,
+          created_at: new Date().toISOString(),
+        });
+
+      if (clickError) throw clickError;
+
+      return true;
+    } catch (error) {
+      console.error("Error tracking click:", error);
+      return false;
+    }
   },
 
   // Get site analytics
   async getSiteAnalytics(): Promise<SiteAnalytics | null> {
-    const stats = productStore.getStats()
-    return {
-      id: "mock",
-      total_visitors: 1247,
-      total_clicks: stats.totalClicks,
-      date: new Date().toISOString().split("T")[0],
-      created_at: new Date().toISOString(),
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('analytics')
+        .select('*')
+        .eq('date', today)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        return data;
+      }
+
+      // Return default stats if no record exists
+      const stats = productStore.getStats();
+      return {
+        id: "default",
+        date: today,
+        total_visitors: 0,
+        total_clicks: stats.totalClicks,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      return null;
     }
   },
 
   // Update site analytics
   async updateSiteAnalytics(totalVisitors: number, totalClicks: number): Promise<boolean> {
-    console.log("Mock: Updating site analytics")
-    return true
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // First check if record exists
+      const { data: existingData, error: fetchError } = await supabase
+        .from('analytics')
+        .select('id')
+        .eq('date', today)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      if (existingData) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('analytics')
+          .update({
+            total_visitors: totalVisitors,
+            total_clicks: totalClicks,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingData.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new record
+        const { error: insertError } = await supabase
+          .from('analytics')
+          .insert({
+            date: today,
+            total_visitors: totalVisitors,
+            total_clicks: totalClicks,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error updating analytics:", error);
+      return false;
+    }
   },
-}
+};
 
 // Enhanced Storage Services
 export const storageService = {
@@ -416,29 +424,55 @@ export const storageService = {
 
   // Compress image
   compressImage: StorageService.compressImage,
-}
+};
 
 // Real-time listeners
 export const realtimeService = {
   // Listen to products changes
   onProductsChange(callback: (products: Product[]) => void) {
     // Use the product store subscription
-    return productStore.subscribe(callback)
+    const storeUnsubscribe = productStore.subscribe(callback);
+
+    // Set up Supabase realtime subscription
+    const subscription = supabase
+      .channel('products-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        async () => {
+          // Refresh products when changes occur
+          await productStore.loadProducts();
+        }
+      )
+      .subscribe();
+
+    // Return combined unsubscribe function
+    return () => {
+      storeUnsubscribe();
+      supabase.removeChannel(subscription);
+    };
   },
 
   // Listen to analytics changes
   onAnalyticsChange(callback: (analytics: SiteAnalytics | null) => void) {
-    // Return mock analytics immediately
-    callback({
-      id: "mock",
-      total_visitors: 1247,
-      total_clicks: productStore.getStats().totalClicks,
-      date: new Date().toISOString().split("T")[0],
-      created_at: new Date().toISOString(),
-    })
-    // Return a dummy unsubscribe function
+    // First call with current data
+    analyticsService.getSiteAnalytics().then(callback);
+
+    // Set up Supabase realtime subscription
+    const subscription = supabase
+      .channel('analytics-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'analytics' },
+        async () => {
+          const analytics = await analyticsService.getSiteAnalytics();
+          callback(analytics);
+        }
+      )
+      .subscribe();
+
     return () => {
-      console.log("Mock: Unsubscribing from analytics")
-    }
+      supabase.removeChannel(subscription);
+    };
   },
-}
+};
