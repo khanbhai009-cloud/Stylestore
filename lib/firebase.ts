@@ -1,134 +1,90 @@
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAfrd2gvEhS4TEY2RrqL2ftYz9g5_Cupcs",
-  authDomain: "weby-44491.firebaseapp.com",
-  projectId: "weby-44491",
-  storageBucket: "weby-44491.firebasestorage.app",
-  messagingSenderId: "814932604590",
-  appId: "1:814932604590:web:92685964ce5e2e75961f3f",
-  measurementId: "G-0LKL7H849G",
+// Supabase configuration
+const supabaseConfig = {
+  url: "https://your-project.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tendmZHltZHNxc3hmYmh1eHR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4OTIwMzksImV4cCI6MjA3MDQ2ODAzOX0.ELZED7ojvvUtZgZTIdUmOaJ8vPE9v_Ox5GdBlXeEkuc",
 }
 
-// Firebase services - initially null
-let app: any = null
-let db: any = null
-let auth: any = null
-let storage: any = null
-let firebaseInitialized = false
+// Supabase services - initially null
+let supabaseClient: any = null
+let supabaseInitialized = false
 
 // Lazy initialization function with better error handling
-export const initializeFirebaseServices = async (): Promise<{ success: boolean; error?: string }> => {
+export const initializeSupabaseServices = async (): Promise<{ success: boolean; error?: string }> => {
   try {
     if (typeof window === "undefined") {
-      return { success: false, error: "Firebase can only be initialized in the browser" }
+      return { success: false, error: "Supabase can only be initialized in the browser" }
     }
 
-    if (firebaseInitialized) {
+    if (supabaseInitialized) {
       return { success: true }
     }
 
-    console.log("🔥 Starting Firebase initialization...")
+    console.log("🔥 Starting Supabase initialization...")
 
-    // Dynamic imports with timeout
-    const initPromise = Promise.all([
-      import("firebase/app"),
-      import("firebase/firestore"),
-      import("firebase/auth"),
-      import("firebase/storage"),
-    ])
-
+    // Dynamic import with timeout
+    const initPromise = import("@supabase/supabase-js")
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Firebase import timeout")), 10000),
+      setTimeout(() => reject(new Error("Supabase import timeout")), 10000),
     )
 
-    const [firebaseApp, firebaseFirestore, firebaseAuth, firebaseStorage] = (await Promise.race([
-      initPromise,
-      timeoutPromise,
-    ])) as any[]
+    const { createClient } = (await Promise.race([initPromise, timeoutPromise])) as any
 
-    console.log("📦 Firebase modules loaded successfully")
+    console.log("📦 Supabase module loaded successfully")
 
-    // Initialize app
-    if (firebaseApp.getApps().length === 0) {
-      app = firebaseApp.initializeApp(firebaseConfig)
-      console.log("🚀 Firebase app initialized")
-    } else {
-      app = firebaseApp.getApps()[0]
-      console.log("🔄 Using existing Firebase app")
-    }
+    // Initialize client
+    supabaseClient = createClient(supabaseConfig.url, supabaseConfig.anonKey)
+    console.log("🚀 Supabase client initialized")
 
     // Test connection with timeout
-    console.log("🔍 Testing Firebase connection...")
-
-    // Initialize services with connection test
-    db = firebaseFirestore.getFirestore(app)
-    auth = firebaseAuth.getAuth(app)
-    storage = firebaseStorage.getStorage(app)
-
-    // Simple connection test
-    const testPromise = firebaseFirestore.connectFirestoreEmulator
-      ? Promise.resolve()
-      : // Skip emulator check
-        Promise.resolve() // Just resolve for now
-
+    console.log("🔍 Testing Supabase connection...")
+    const testPromise = supabaseClient.from('products').select('*').limit(1)
     const connectionTimeout = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Connection test timeout")), 5000),
     )
 
     await Promise.race([testPromise, connectionTimeout])
 
-    firebaseInitialized = true
-    console.log("✅ Firebase services initialized and tested successfully")
+    supabaseInitialized = true
+    console.log("✅ Supabase services initialized and tested successfully")
 
     return { success: true }
   } catch (error) {
-    console.warn("❌ Firebase initialization failed:", error)
+    console.warn("❌ Supabase initialization failed:", error)
 
     // Reset services on failure
-    app = null
-    db = null
-    auth = null
-    storage = null
-    firebaseInitialized = false
+    supabaseClient = null
+    supabaseInitialized = false
 
     const errorMessage = error instanceof Error ? error.message : "Unknown initialization error"
     return { success: false, error: errorMessage }
   }
 }
 
-// Check if Firebase is available and initialized
-export const isFirebaseAvailable = () => {
-  return firebaseInitialized && db !== null && auth !== null && storage !== null
+// Check if Supabase is available and initialized
+export const isSupabaseAvailable = () => {
+  return supabaseInitialized && supabaseClient !== null
 }
 
-// Safe getters for Firebase services
-export const getFirebaseDb = () => db
-export const getFirebaseAuth = () => auth
-export const getFirebaseStorage = () => storage
+// Safe getter for Supabase client
+export const getSupabaseClient = () => supabaseClient
 
 // Get initialization status
-export const getFirebaseStatus = () => ({
-  initialized: firebaseInitialized,
-  hasApp: app !== null,
-  hasDb: db !== null,
-  hasAuth: auth !== null,
-  hasStorage: storage !== null,
+export const getSupabaseStatus = () => ({
+  initialized: supabaseInitialized,
+  hasClient: supabaseClient !== null,
 })
 
-// Reset Firebase (for testing)
-export const resetFirebase = () => {
-  app = null
-  db = null
-  auth = null
-  storage = null
-  firebaseInitialized = false
-  console.log("🔄 Firebase reset")
+// Reset Supabase (for testing)
+export const resetSupabase = () => {
+  supabaseClient = null
+  supabaseInitialized = false
+  console.log("🔄 Supabase reset")
 }
 
 // Export config for reference
-export { firebaseConfig }
+export { supabaseConfig }
 
-// Types for our data models
+// Types for our data models (same as before)
 export interface Product {
   id: string
   name: string
