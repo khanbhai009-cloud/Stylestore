@@ -1,5 +1,13 @@
-// Enhanced storage service with better error handling
+// Enhanced storage service with Supabase
 export class StorageService {
+  // Initialize Supabase client
+  private static async getSupabaseClient() {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    return createClient(supabaseUrl, supabaseKey)
+  }
+
   // Upload product image with multiple fallback strategies
   static async uploadProductImage(file: File): Promise<string | null> {
     console.log("🔄 Starting image upload process for:", file.name)
@@ -18,36 +26,30 @@ export class StorageService {
         throw new Error("File size exceeds 5MB limit")
       }
 
-      // Strategy 1: Try Firebase Storage if available
+      // Strategy 1: Try Supabase Storage if available
       if (typeof window !== "undefined") {
         try {
-          const { initializeFirebaseServices, getFirebaseStorage, isFirebaseAvailable } = await import("./firebase")
+          const supabase = await this.getSupabaseClient()
+          
+          console.log("📤 Uploading to Supabase Storage...")
+          const fileName = `products/${Date.now()}-${Math.random().toString(36).substring(2)}-${file.name}`
+          const { data, error } = await supabase.storage
+            .from('product-images') // Your bucket name
+            .upload(fileName, file)
 
-          // Initialize Firebase if not already done
-          if (!isFirebaseAvailable()) {
-            console.log("🔥 Initializing Firebase for image upload...")
-            const result = await initializeFirebaseServices()
-            if (!result.success) {
-              throw new Error("Firebase initialization failed")
-            }
-          }
+          if (error) throw error
 
-          const storage = getFirebaseStorage()
-          if (storage) {
-            console.log("📤 Uploading to Firebase Storage...")
-            const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage")
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(fileName)
 
-            const fileName = `products/${Date.now()}-${Math.random().toString(36).substring(2)}-${file.name}`
-            const storageRef = ref(storage, fileName)
+          if (!urlData.publicUrl) throw new Error("Failed to get public URL")
 
-            const snapshot = await uploadBytes(storageRef, file)
-            const downloadURL = await getDownloadURL(snapshot.ref)
-
-            console.log("✅ Firebase upload successful:", downloadURL)
-            return downloadURL
-          }
-        } catch (firebaseError) {
-          console.warn("❌ Firebase upload failed:", firebaseError)
+          console.log("✅ Supabase upload successful:", urlData.publicUrl)
+          return urlData.publicUrl
+        } catch (supabaseError) {
+          console.warn("❌ Supabase upload failed:", supabaseError)
         }
       }
 
@@ -82,7 +84,7 @@ export class StorageService {
     }
   }
 
-  // Delete image (Firebase only)
+  // Delete image (Supabase only)
   static async deleteImage(imageUrl: string): Promise<boolean> {
     try {
       // Skip deletion for base64 and placeholder URLs
@@ -90,29 +92,22 @@ export class StorageService {
         return true
       }
 
-      const { getFirebaseStorage, isFirebaseAvailable } = await import("./firebase")
+      const supabase = await this.getSupabaseClient()
+      
+      // Extract file path from URL
+      const url = new URL(imageUrl)
+      const pathParts = url.pathname.split('/storage/v1/object/public/product-images/')
+      if (pathParts.length < 2) return false
+      
+      const filePath = pathParts[1]
+      
+      const { error } = await supabase.storage
+        .from('product-images')
+        .remove([filePath])
 
-      if (!isFirebaseAvailable()) {
-        console.warn("Firebase not available for image deletion")
-        return false
-      }
+      if (error) throw error
 
-      const storage = getFirebaseStorage()
-      if (!storage) return false
-
-      const { ref, deleteObject } = await import("firebase/storage")
-
-      // Extract path from Firebase URL
-      const urlParts = imageUrl.split("/o/")
-      if (urlParts.length < 2) return false
-
-      const pathPart = urlParts[1].split("?")[0]
-      const imagePath = decodeURIComponent(pathPart)
-
-      const imageRef = ref(storage, imagePath)
-      await deleteObject(imageRef)
-
-      console.log("✅ Image deleted from Firebase Storage")
+      console.log("✅ Image deleted from Supabase Storage")
       return true
     } catch (error) {
       console.error("❌ Error deleting image:", error)
@@ -120,7 +115,7 @@ export class StorageService {
     }
   }
 
-  // Validate image file
+  // Validate image file (unchanged from original)
   static validateImageFile(file: File): { valid: boolean; error?: string } {
     if (!file) {
       return { valid: false, error: "No file selected" }
@@ -142,7 +137,7 @@ export class StorageService {
     return { valid: true }
   }
 
-  // Compress image if needed
+  // Compress image (unchanged from original)
   static async compressImage(file: File, maxSizeMB = 1): Promise<File> {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas")
