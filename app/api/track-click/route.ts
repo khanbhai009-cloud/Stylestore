@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { analyticsService } from "@/lib/firebaseService"
+import { analyticsService } from "@/lib/subabaseService"
 
 export async function POST(request: NextRequest) {
   try {
