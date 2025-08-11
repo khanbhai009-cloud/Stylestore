@@ -1,70 +1,75 @@
+// app/admin/AddProduct.tsx
 "use client";
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function AdminAddProduct() {
+export default function AddProduct() {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
   const [discount, setDiscount] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("watch");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleAddProduct = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
-
-    const discountedPrice = discount
-      ? (Number(price) - (Number(price) * Number(discount)) / 100).toFixed(2)
-      : price;
 
     const { data, error } = await supabase.from("products").insert([
       {
         title,
+        image,
+        discount: parseFloat(discount),
+        price: parseFloat(price),
         description,
-        price: Number(price),
-        discount: Number(discount) || 0,
-        discounted_price: Number(discountedPrice),
-        image_url: imageUrl,
+        category,
       },
     ]);
 
     if (error) {
-      console.error(error);
-      setMessage("❌ Error adding product.");
+      setMessage(`❌ Error: ${error.message}`);
     } else {
       setMessage("✅ Product added successfully!");
       setTitle("");
-      setDescription("");
-      setPrice("");
+      setImage("");
       setDiscount("");
-      setImageUrl("");
+      setPrice("");
+      setDescription("");
+      setCategory("watch");
     }
-
     setLoading(false);
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin - Add Product</h1>
-      <form onSubmit={handleAddProduct} className="space-y-4">
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold mb-4">Add Product</h2>
+      {message && <p className="mb-4 text-sm">{message}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
-          placeholder="Product Title"
+          placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
+          className="w-full p-2 border rounded"
           required
         />
-        <textarea
-          placeholder="Product Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-          rows={3}
+        <input
+          type="url"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Discount (%)"
+          value={discount}
+          onChange={(e) => setDiscount(e.target.value)}
+          className="w-full p-2 border rounded"
           required
         />
         <input
@@ -72,33 +77,38 @@ export default function AdminAddProduct() {
           placeholder="Price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
+          className="w-full p-2 border rounded"
           required
         />
-        <input
-          type="number"
-          placeholder="Discount % (optional)"
-          value={discount}
-          onChange={(e) => setDiscount(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          type="url"
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full p-2 border rounded"
           required
         />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="watch">Watch</option>
+          <option value="pant">Pant</option>
+          <option value="jeans">Jeans</option>
+          <option value="kurta">Kurta</option>
+          <option value="health & fitness">Health & Fitness</option>
+          <option value="beauty">Beauty</option>
+          <option value="ebook">Ebook</option>
+        </select>
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
         >
           {loading ? "Adding..." : "Add Product"}
         </button>
       </form>
-      {message && <p className="mt-4 text-center">{message}</p>}
     </div>
   );
 }
