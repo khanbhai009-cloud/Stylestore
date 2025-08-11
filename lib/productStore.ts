@@ -156,8 +156,11 @@ class ProductStore {
     },
   ]
 
-  private listeners: Array<(products: Product[]) => void> = []
-
+  // Replace products array with this ▼
+products: getLocalStorageProducts() || [
+  { id: 1, name: 'Product 1', price: 100 },
+  { id: 2, name: 'Product 2', price: 200 },
+],
   // Get all products
   getProducts(): Product[] {
     return [...this.products].filter((p) => p.is_active)
