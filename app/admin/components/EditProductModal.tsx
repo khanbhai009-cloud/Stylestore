@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X } from "lucide-react"
-import { supabase, type Product } from "@/lib/supabase"
+import { supabase, type Product } from "@/lib/supabaseClient"
 
 interface EditProductModalProps {
   product: Product | null
