@@ -1,55 +1,87 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { supabaseConfig } from "./supabaseConfig";
 
-// 1. Main Client (Server + Browser compatible)
-export const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+// ======================
+// 1. CORE CLIENT (Universal)
+// ======================
+export const supabase = createClient(
+  supabaseConfig.url, 
+  supabaseConfig.anonKey,
+  {
+    auth: {
+      persistSession: true, // Recommended for browser
+      autoRefreshToken: true
+    }
+  }
+);
 
-// 2. Lazy Initialization (Browser-only)
-let supabaseClient: SupabaseClient | null = null;
-let supabaseInitialized = false;
+// ======================
+// 2. BROWSER-SPECIFIC CLIENT
+// ======================
+let browserClient: SupabaseClient | null = null;
+let isBrowserInitialized = false;
 
-export const initializeSupabaseServices = async () => {
+export const initBrowserClient = async () => {
+  // Early returns for SSR and re-initialization
   if (typeof window === "undefined") {
     return { 
       success: false, 
-      error: "Browser mein hi Supabase initialize ho sakta hai" 
+      error: "Browser features unavailable in SSR" 
     };
   }
-
-  if (supabaseInitialized) return { success: true };
+  if (isBrowserInitialized) return { success: true };
 
   try {
-    console.log("🚀 Supabase shuru kar rahe hain...");
-    supabaseClient = createClient(supabaseConfig.url, supabaseConfig.anonKey);
-    
-    // Connection test (5 second timeout)
-    await Promise.race([
-      supabaseClient.from("products").select("*").limit(1),
+    browserClient = createClient(
+      supabaseConfig.url,
+      supabaseConfig.anonKey,
+      {
+        auth: {
+          persistSession: true,
+          flowType: 'pkce' // More secure for browser
+        }
+      }
+    );
+
+    // Health check with timeout
+    const { error } = await Promise.race([
+      browserClient.from("products").select("*").limit(1),
       new Promise((_, reject) => 
-        setTimeout(() => reject("Connection timeout"), 5000)
+        setTimeout(() => reject("Connection timeout"), 3000) // Reduced timeout
       )
     ]);
 
-    supabaseInitialized = true;
-    console.log("✅ Supabase taiyar hai!");
+    if (error) throw error;
+
+    isBrowserInitialized = true;
     return { success: true };
   } catch (error) {
-    console.error("❌ Supabase startup fail:", error);
-    supabaseClient = null;
-    supabaseInitialized = false;
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Pata nahi error kya hai" 
+    handleError(error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Initialization failed"
     };
   }
 };
 
-// Helper Functions
-export const isSupabaseAvailable = () => supabaseInitialized && !!supabaseClient;
-export const getSupabaseClient = () => supabaseClient;
-export const resetSupabase = () => {
-  supabaseClient = null;
-  supabaseInitialized = false;
+// ======================
+// HELPER FUNCTIONS
+// ======================
+const handleError = (error: unknown) => {
+  console.error("Supabase Error:", error);
+  browserClient = null;
+  isBrowserInitialized = false;
+};
+
+export const getBrowserClient = (): SupabaseClient => {
+  if (!browserClient) throw new Error("Browser client not initialized");
+  return browserClient;
+};
+
+export const resetBrowserClient = () => {
+  browserClient?.auth.signOut(); // Clear session
+  browserClient = null;
+  isBrowserInitialized = false;
 };
 
 // Types for our data models (same as before)
