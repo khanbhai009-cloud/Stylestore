@@ -1,11 +1,7 @@
-// lib/firebase.ts
-import { initializeApp as _initializeApp } from "firebase/app";
-import type { FirebaseApp } from "firebase/app";
-import type { Firestore } from "firebase/firestore";
-import type { Auth } from "firebase/auth";
-import type { FirebaseStorage } from "firebase/storage";
+// Firebase configuration (keeping original for compatibility)
+import { initializeApp } from "firebase/app"
+import { getFirestore } from "firebase/firestore"
 
-// Firebase config (keep your keys)
 const firebaseConfig = {
   apiKey: "AIzaSyAfrd2gvEhS4TEY2RrqL2ftYz9g5_Cupcs",
   authDomain: "weby-44491.firebaseapp.com",
@@ -14,25 +10,33 @@ const firebaseConfig = {
   messagingSenderId: "814932604590",
   appId: "1:814932604590:web:92685964ce5e2e75961f3f",
   measurementId: "G-0LKL7H849G",
-};
+}
 
-// Firebase services - initially null (use let so we can assign later)
-let app: FirebaseApp | null = null;
-let db: Firestore | null = null;
-let auth: Auth | null = null;
-let storage: FirebaseStorage | null = null;
-let firebaseInitialized = false;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig)
+const db = getFirestore(app)
+
+export { db }
+
+// Firebase services - initially null
+let firebaseApp: any = null
+let firebaseDb: any = null
+let auth: any = null
+let storage: any = null
+let firebaseInitialized = false
 
 // Lazy initialization function with better error handling
 export const initializeFirebaseServices = async (): Promise<{ success: boolean; error?: string }> => {
   try {
     if (typeof window === "undefined") {
-      return { success: false, error: "Firebase can only be initialized in the browser" };
+      return { success: false, error: "Firebase can only be initialized in the browser" }
     }
 
     if (firebaseInitialized) {
-      return { success: true };
+      return { success: true }
     }
+
+    console.log("🔥 Starting Firebase initialization...")
 
     // Dynamic imports with timeout
     const initPromise = Promise.all([
@@ -40,98 +44,104 @@ export const initializeFirebaseServices = async (): Promise<{ success: boolean; 
       import("firebase/firestore"),
       import("firebase/auth"),
       import("firebase/storage"),
-    ]);
+    ])
 
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Firebase import timeout")), 10000),
-    );
+    )
 
-    const [firebaseAppModule, firebaseFirestoreModule, firebaseAuthModule, firebaseStorageModule] =
-      (await Promise.race([initPromise, timeoutPromise])) as any[];
+    const [firebaseAppModule, firebaseFirestore, firebaseAuth, firebaseStorage] = (await Promise.race([
+      initPromise,
+      timeoutPromise,
+    ])) as any[]
 
-    // initialize app (use getApps to avoid multiple initializations)
+    console.log("📦 Firebase modules loaded successfully")
+
+    // Initialize app
     if (firebaseAppModule.getApps().length === 0) {
-      app = firebaseAppModule.initializeApp(firebaseConfig);
+      firebaseApp = firebaseAppModule.initializeApp(firebaseConfig)
+      console.log("🚀 Firebase app initialized")
     } else {
-      app = firebaseAppModule.getApps()[0];
+      firebaseApp = firebaseAppModule.getApps()[0]
+      console.log("♻️ Using existing Firebase app")
     }
 
-    // Initialize service instances
-    db = firebaseFirestoreModule.getFirestore(app);
-    auth = firebaseAuthModule.getAuth(app);
-    storage = firebaseStorageModule.getStorage(app);
+    // Initialize services
+    firebaseDb = firebaseFirestore.getFirestore(firebaseApp)
+    auth = firebaseAuth.getAuth(firebaseApp)
+    storage = firebaseStorage.getStorage(firebaseApp)
 
-    firebaseInitialized = true;
-    return { success: true };
-  } catch (error: any) {
-    console.warn("Firebase initialization failed:", error);
+    firebaseInitialized = true
+    console.log("✅ Firebase services initialized successfully")
+
+    return { success: true }
+  } catch (error) {
+    console.warn("⚠️ Firebase initialization failed:", error)
 
     // Reset services on failure
-    app = null;
-    db = null;
-    auth = null;
-    storage = null;
-    firebaseInitialized = false;
+    firebaseApp = null
+    firebaseDb = null
+    auth = null
+    storage = null
+    firebaseInitialized = false
 
-    const errorMessage = error instanceof Error ? error.message : "Unknown initialization error";
-    return { success: false, error: errorMessage };
+    const errorMessage = error instanceof Error ? error.message : "Unknown initialization error"
+    return { success: false, error: errorMessage }
   }
-};
+}
 
 // Check if Firebase is available and initialized
 export const isFirebaseAvailable = () => {
-  return firebaseInitialized && db !== null && auth !== null && storage !== null;
-};
+  return firebaseInitialized && firebaseDb !== null && auth !== null && storage !== null
+}
 
 // Safe getters for Firebase services
-export const getFirebaseDb = () => db;
-export const getFirebaseAuth = () => auth;
-export const getFirebaseStorage = () => storage;
+export const getFirebaseDb = () => firebaseDb
+export const getFirebaseAuth = () => auth
+export const getFirebaseStorage = () => storage
 
 // Get initialization status
 export const getFirebaseStatus = () => ({
   initialized: firebaseInitialized,
-  hasApp: app !== null,
-  hasDb: db !== null,
+  hasApp: firebaseApp !== null,
+  hasDb: firebaseDb !== null,
   hasAuth: auth !== null,
   hasStorage: storage !== null,
-});
+})
 
 // Reset Firebase (for testing)
 export const resetFirebase = () => {
-  app = null;
-  db = null;
-  auth = null;
-  storage = null;
-  firebaseInitialized = false;
-  console.log("Firebase reset");
-};
-
-// Export config for reference
-export { firebaseConfig };
-
-// -----------------
-// Keep your types below (unchanged)
-// -----------------
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  original_price?: number;
-  image_url: string;
-  category: "watches" | "pants" | "jeans" | "kurta" | "health-fitness" | "beauty";
-  tags: string[];
-  affiliate_link: string;
-  clicks: number;
-  is_active: boolean;
-  discount_percentage: number;
-  discount_amount: number;
-  created_at: string;
-  updated_at: string;
+  firebaseApp = null
+  firebaseDb = null
+  auth = null
+  storage = null
+  firebaseInitialized = false
+  console.log("♻️ Firebase reset")
 }
 
-// ... keep the rest of your interfaces as they were
+// Export config for reference
+export { firebaseConfig }
+
+// Types for our data models
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  original_price?: number
+  image_url: string
+  category: "watches" | "pants" | "jeans" | "kurta" | "health-fitness" | "beauty"
+  tags: string[]
+  affiliate_link: string
+  clicks: number
+  likes?: number
+  is_active: boolean
+  discount_percentage: number
+  discount_amount: number
+  created_at: string
+  updated_at: string
+}
+
 export interface User {
   id: string
   email: string
