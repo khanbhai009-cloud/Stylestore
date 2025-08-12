@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   const { id } = req.query
 
   if (req.method === 'POST') {
-    const { data, error } = await supabase
+    const { data, error } = await firebase
       .from('products')
       .update({ likes: supabase.raw('likes + 1') })
       .eq('id', id)
