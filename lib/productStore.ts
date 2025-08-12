@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient";
+import { supabase } from "./firebase";
 import type { Product } from "./types";
 
 class ProductStore {
