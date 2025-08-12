@@ -1,4 +1,4 @@
-import { firebase } from '@/lib/firebaseClient'
+import { firebase } from '@/lib/firebase'
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
