@@ -32,24 +32,26 @@ export default function ProductGrid() {
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
-  useEffect(() => {
-    fetchProducts()
-
     // Subscribe to real-time product updates
-    const unsubscribe = productService.subscribe(callback: (products: Product[]) => void): () => void {
-  // Add null check before accessing subscribe
-  if (productStore && productStore.subscribe) {
-    return productStore.subscribe(callback);
-  }
-  
-  // Return a dummy unsubscribe function if store isn't available
-  console.error("Product store not available for subscription");
-  return () => {};
-}
-    return () => {
-      unsubscribe()
+    useEffect(() => {
+  const fetchProducts = async () => {
+    const products = await productService.getProducts();
+    setProducts(products);
+  };
+
+  fetchProducts();
+
+  // Subscribe to real-time product updates
+  const unsubscribe = productService.subscribe((updatedProducts: Product[]) => {
+    setProducts(updatedProducts);
+  });
+
+  return () => {
+    if (unsubscribe && typeof unsubscribe === "function") {
+      unsubscribe();
     }
-  }, [])
+  };
+}, []);
 
   useEffect(() => {
     let filtered = products
