@@ -1,4 +1,5 @@
-import { supabase } from "./firebase";
+import { db } from "./firebase";
+import { collection, query, orderBy, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import type { Product } from "./types";
 
 class ProductStore {
@@ -15,14 +16,14 @@ class ProductStore {
 
   private async loadProducts() {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const productsCollection = collection(db, 'products');
+      const q = query(productsCollection, orderBy('created_at', 'desc'));
+      const querySnapshot = await getDocs(q);
 
-      if (error) throw error;
-
-      this.products = data || [];
+      this.products = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
       this.notifyListeners();
     } catch (error) {
       console.error("Error loading products:", error);
@@ -46,23 +47,17 @@ class ProductStore {
   }
 
   async addProduct(product: Omit<Product, "id">): Promise<string> {
-    const newProduct: Product = {
+    const newProduct = {
       ...product,
-      id: `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       clicks: 0,
     };
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .insert(newProduct);
-
-      if (error) throw error;
-
+      const docRef = await addDoc(collection(db, 'products'), newProduct);
       await this.loadProducts();
-      return newProduct.id;
+      return docRef.id;
     } catch (error) {
       console.error("Error adding product:", error);
       throw error;
@@ -71,16 +66,11 @@ class ProductStore {
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      const productRef = doc(db, 'products', id);
+      await updateDoc(productRef, {
+        ...updates,
+        updated_at: new Date().toISOString()
+      });
       await this.loadProducts();
       return true;
     } catch (error) {
@@ -91,13 +81,7 @@ class ProductStore {
 
   async deleteProduct(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await deleteDoc(doc(db, 'products', id));
       await this.loadProducts();
       return true;
     } catch (error) {
@@ -111,13 +95,10 @@ class ProductStore {
       const product = await this.getProduct(id);
       if (!product) return false;
 
-      const { error } = await supabase
-        .from('products')
-        .update({ clicks: product.clicks + 1 })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      const productRef = doc(db, 'products', id);
+      await updateDoc(productRef, { 
+        clicks: product.clicks + 1 
+      });
       await this.loadProducts();
       return true;
     } catch (error) {
@@ -130,7 +111,7 @@ class ProductStore {
     this.listeners.push(listener);
     // Call immediately with current data
     listener(this.products.filter(p => p.is_active));
-    
+
     return () => {
       const index = this.listeners.indexOf(listener);
       if (index > -1) {
