@@ -26,7 +26,7 @@ export default function FirebaseSetup() {
       setError(null)
       setFirebaseDetails("")
 
-      console.log("馃敟 Starting Firebase initialization...")
+      console.log("🔥 Starting Firebase initialization...")
 
       // Reset any previous state
       resetFirebase()
@@ -35,13 +35,13 @@ export default function FirebaseSetup() {
 
       if (result.success) {
         setSetupStatus((prev) => ({ ...prev, firebase: true }))
-        setFirebaseDetails("Firebase services initialized successfully! 鉁�")
-        console.log("鉁� Firebase initialized successfully!")
+        setFirebaseDetails("Firebase services initialized successfully! ✅")
+        console.log("✅ Firebase initialized successfully!")
       } else {
         throw new Error(result.error || "Firebase initialization failed")
       }
     } catch (err) {
-      console.error("鉂� Error initializing Firebase:", err)
+      console.error("⚠️ Error initializing Firebase:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
       setError(`Firebase initialization failed: ${errorMessage}`)
 
@@ -63,13 +63,13 @@ export default function FirebaseSetup() {
       }
 
       // Simulate Firebase Firestore operations
-      console.log("馃摝 Setting up products collection...")
+      console.log("📦 Setting up products collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, products: true }))
-      console.log("鉁� Products setup completed!")
+      console.log("✅ Products setup completed!")
     } catch (err) {
-      console.error("鉂� Error setting up products:", err)
+      console.error("⚠️ Error setting up products:", err)
       setError(`Products setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -86,13 +86,13 @@ export default function FirebaseSetup() {
       }
 
       // Simulate Firebase Auth and Firestore operations
-      console.log("馃懃 Setting up users collection...")
+      console.log("👥 Setting up users collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, users: true }))
-      console.log("鉁� Users setup completed!")
+      console.log("✅ Users setup completed!")
     } catch (err) {
-      console.error("鉂� Error setting up users:", err)
+      console.error("⚠️ Error setting up users:", err)
       setError(`Users setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -109,13 +109,13 @@ export default function FirebaseSetup() {
       }
 
       // Simulate Firebase Analytics setup
-      console.log("馃搳 Setting up analytics collection...")
+      console.log("📊 Setting up analytics collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
-      console.log("鉁� Analytics setup completed!")
+      console.log("✅ Analytics setup completed!")
     } catch (err) {
-      console.error("鉂� Error setting up analytics:", err)
+      console.error("⚠️ Error setting up analytics:", err)
       setError(`Analytics setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -127,7 +127,7 @@ export default function FirebaseSetup() {
       setLoading(true)
       setError(null)
 
-      console.log("馃殌 Starting complete Firebase setup...")
+      console.log("🚀 Starting complete Firebase setup...")
 
       // Initialize Firebase first
       const firebaseResult = await initializeFirebaseServices()
@@ -147,10 +147,10 @@ export default function FirebaseSetup() {
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
 
       setSetupStatus((prev) => ({ ...prev, complete: true }))
-      setFirebaseDetails("馃帀 Complete Firebase setup finished successfully!")
-      console.log("馃帀 Complete setup finished!")
+      setFirebaseDetails("🎉 Complete Firebase setup finished successfully!")
+      console.log("🎉 Complete setup finished!")
     } catch (err) {
-      console.error("鉂� Complete setup failed:", err)
+      console.error("⚠️ Complete setup failed:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
       setError(`Complete setup failed: ${errorMessage}`)
     } finally {
@@ -166,7 +166,7 @@ export default function FirebaseSetup() {
       analytics: true,
       complete: true,
     })
-    setFirebaseDetails("鉁� Skipped Firebase setup - Demo mode will continue working perfectly!")
+    setFirebaseDetails("✅ Skipped Firebase setup - Demo mode will continue working perfectly!")
     setError(null)
   }
 
@@ -182,7 +182,7 @@ export default function FirebaseSetup() {
             </Button>
           </Link>
           <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-white mb-4">馃敟 Firebase Setup</h1>
+            <h1 className="text-4xl font-bold text-white mb-4">🔥 Firebase Setup</h1>
             <p className="text-red-200 text-lg">Optional Firebase initialization for production deployment</p>
           </div>
         </div>
@@ -261,7 +261,7 @@ export default function FirebaseSetup() {
                 className="flex-1"
                 variant={setupStatus.firebase ? "secondary" : "default"}
               >
-                {setupStatus.firebase ? "鉁� Firebase Ready" : loading ? "Initializing..." : "Initialize Firebase"}
+                {setupStatus.firebase ? "✅ Firebase Ready" : loading ? "Initializing..." : "Initialize Firebase"}
               </Button>
               <Button
                 onClick={() => {
@@ -298,7 +298,7 @@ export default function FirebaseSetup() {
                 className="w-full"
                 variant={setupStatus.products ? "secondary" : "default"}
               >
-                {setupStatus.products ? "鉁� Complete" : loading ? "Setting up..." : "Setup Products"}
+                {setupStatus.products ? "✅ Complete" : loading ? "Setting up..." : "Setup Products"}
               </Button>
             </CardContent>
           </Card>
@@ -320,7 +320,7 @@ export default function FirebaseSetup() {
                 className="w-full"
                 variant={setupStatus.users ? "secondary" : "default"}
               >
-                {setupStatus.users ? "鉁� Complete" : loading ? "Setting up..." : "Setup Users"}
+                {setupStatus.users ? "✅ Complete" : loading ? "Setting up..." : "Setup Users"}
               </Button>
             </CardContent>
           </Card>
@@ -342,7 +342,7 @@ export default function FirebaseSetup() {
                 className="w-full"
                 variant={setupStatus.analytics ? "secondary" : "default"}
               >
-                {setupStatus.analytics ? "鉁� Complete" : loading ? "Setting up..." : "Setup Analytics"}
+                {setupStatus.analytics ? "✅ Complete" : loading ? "Setting up..." : "Setup Analytics"}
               </Button>
             </CardContent>
           </Card>
@@ -363,16 +363,16 @@ export default function FirebaseSetup() {
                 <p className="text-gray-600 mb-2">Initialize all Firebase components at once</p>
                 <div className="flex space-x-2">
                   <Badge variant={setupStatus.firebase ? "default" : "secondary"}>
-                    Firebase {setupStatus.firebase ? "鉁�" : "鈴�"}
+                    Firebase {setupStatus.firebase ? "✅" : "❌"}
                   </Badge>
                   <Badge variant={setupStatus.products ? "default" : "secondary"}>
-                    Products {setupStatus.products ? "鉁�" : "鈴�"}
+                    Products {setupStatus.products ? "✅" : "❌"}
                   </Badge>
                   <Badge variant={setupStatus.users ? "default" : "secondary"}>
-                    Users {setupStatus.users ? "鉁�" : "鈴�"}
+                    Users {setupStatus.users ? "✅" : "❌"}
                   </Badge>
                   <Badge variant={setupStatus.analytics ? "default" : "secondary"}>
-                    Analytics {setupStatus.analytics ? "鉁�" : "鈴�"}
+                    Analytics {setupStatus.analytics ? "✅" : "❌"}
                   </Badge>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function FirebaseSetup() {
                   size="lg"
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  {setupStatus.complete ? "鉁� Setup Complete" : loading ? "Setting up..." : "馃殌 Setup All"}
+                  {setupStatus.complete ? "✅ Setup Complete" : loading ? "Setting up..." : "🚀 Setup All"}
                 </Button>
               </div>
             </div>
@@ -393,13 +393,13 @@ export default function FirebaseSetup() {
         {/* Instructions */}
         <Card>
           <CardHeader>
-            <CardTitle>馃搵 What's Available Right Now</CardTitle>
+            <CardTitle>ℹ️ What's Available Right Now</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
-                  <strong>鉁� Your StyleStore is 100% functional!</strong> All features work perfectly in demo mode.
+                  <strong>✅ Your StyleStore is 100% functional!</strong> All features work perfectly in demo mode.
                   Firebase setup is purely optional for production deployment.
                 </p>
               </div>
@@ -408,39 +408,39 @@ export default function FirebaseSetup() {
                 <h3 className="font-semibold text-gray-900 mb-2">Working Features (No Setup Required):</h3>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
                   <li>
-                    馃彔 Browse products:{" "}
+                    🛍️ Browse products:{" "}
                     <Link href="/" className="text-blue-600 hover:underline">
                       Homepage
                     </Link>
                   </li>
                   <li>
-                    馃敡 Admin panel:{" "}
+                    🖥️ Admin panel:{" "}
                     <Link href="/admin" className="text-blue-600 hover:underline">
                       Admin Dashboard
                     </Link>
                   </li>
-                  <li>馃攽 Login: admin@gmail.com / admin123</li>
-                  <li>馃摝 8 sample products with categories</li>
-                  <li>馃搳 Click tracking and analytics</li>
-                  <li>馃帹 Responsive design and filtering</li>
-                  <li>馃捈 Product management interface</li>
+                  <li>🔑 Login: admin@gmail.com / admin123</li>
+                  <li>📦 8 sample products with categories</li>
+                  <li>📊 Click tracking and analytics</li>
+                  <li>📱 Responsive design and filtering</li>
+                  <li>✏️ Product management interface</li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Firebase Benefits (When Working):</h3>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  <li>鈽侊笍 Real-time data synchronization</li>
-                  <li>馃柤锔� Cloud storage for product images</li>
-                  <li>馃搱 Scalable database infrastructure</li>
-                  <li>馃攼 Production user authentication</li>
-                  <li>馃殌 Ready for live deployment</li>
+                  <li>⚡ Real-time data synchronization</li>
+                  <li>☁️ Cloud storage for product images</li>
+                  <li>📈 Scalable database infrastructure</li>
+                  <li>👤 Production user authentication</li>
+                  <li>🚀 Ready for live deployment</li>
                 </ul>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>馃挕 Pro Tip:</strong> Firebase setup can be tricky and is completely optional. Your demo store
+                  <strong>💡 Pro Tip:</strong> Firebase setup can be tricky and is completely optional. Your demo store
                   has all the features you need to test and showcase the platform!
                 </p>
               </div>
