@@ -1,4 +1,4 @@
-import type { Product } from "@/lib/supabaseClient"
+import type { Product } from "@/lib/firebase"
 
 export interface ExportData {
   products: Product[]
