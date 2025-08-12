@@ -36,10 +36,16 @@ export default function ProductGrid() {
     fetchProducts()
 
     // Subscribe to real-time product updates
-    const unsubscribe = productService.subscribe((updatedProducts) => {
-      setProducts(updatedProducts)
-    })
-
+    const unsubscribe = productService.subscribe(callback: (products: Product[]) => void): () => void {
+  // Add null check before accessing subscribe
+  if (productStore && productStore.subscribe) {
+    return productStore.subscribe(callback);
+  }
+  
+  // Return a dummy unsubscribe function if store isn't available
+  console.error("Product store not available for subscription");
+  return () => {};
+}
     return () => {
       unsubscribe()
     }
