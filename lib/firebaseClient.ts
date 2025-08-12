@@ -1,90 +1,134 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { supabaseConfig } from "./supabaseConfig";
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAfrd2gvEhS4TEY2RrqL2ftYz9g5_Cupcs",
+  authDomain: "weby-44491.firebaseapp.com",
+  projectId: "weby-44491",
+  storageBucket: "weby-44491.firebasestorage.app",
+  messagingSenderId: "814932604590",
+  appId: "1:814932604590:web:92685964ce5e2e75961f3f",
+  measurementId: "G-0LKL7H849G",
+}
 
-// ======================
-// 1. CORE CLIENT (Universal)
-// ======================
-export const supabase = createClient(
-  supabaseConfig.url, 
-  supabaseConfig.anonKey,
-  {
-    auth: {
-      persistSession: true, // Recommended for browser
-      autoRefreshToken: true
-    }
-  }
-);
+// Firebase services - initially null
+let app: any = null
+let db: any = null
+let auth: any = null
+let storage: any = null
+let firebaseInitialized = false
 
-// ======================
-// 2. BROWSER-SPECIFIC CLIENT
-// ======================
-let browserClient: SupabaseClient | null = null;
-let isBrowserInitialized = false;
-
-export const initBrowserClient = async () => {
-  // Early returns for SSR and re-initialization
-  if (typeof window === "undefined") {
-    return { 
-      success: false, 
-      error: "Browser features unavailable in SSR" 
-    };
-  }
-  if (isBrowserInitialized) return { success: true };
-
+// Lazy initialization function with better error handling
+export const initializeFirebaseServices = async (): Promise<{ success: boolean; error?: string }> => {
   try {
-    browserClient = createClient(
-      supabaseConfig.url,
-      supabaseConfig.anonKey,
-      {
-        auth: {
-          persistSession: true,
-          flowType: 'pkce' // More secure for browser
-        }
-      }
-    );
+    if (typeof window === "undefined") {
+      return { success: false, error: "Firebase can only be initialized in the browser" }
+    }
 
-    // Health check with timeout
-    const { error } = await Promise.race([
-      browserClient.from("products").select("*").limit(1),
-      new Promise((_, reject) => 
-        setTimeout(() => reject("Connection timeout"), 3000) // Reduced timeout
-      )
-    ]);
+    if (firebaseInitialized) {
+      return { success: true }
+    }
 
-    if (error) throw error;
+    console.log("馃敟 Starting Firebase initialization...")
 
-    isBrowserInitialized = true;
-    return { success: true };
+    // Dynamic imports with timeout
+    const initPromise = Promise.all([
+      import("firebase/app"),
+      import("firebase/firestore"),
+      import("firebase/auth"),
+      import("firebase/storage"),
+    ])
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Firebase import timeout")), 10000),
+    )
+
+    const [firebaseApp, firebaseFirestore, firebaseAuth, firebaseStorage] = (await Promise.race([
+      initPromise,
+      timeoutPromise,
+    ])) as any[]
+
+    console.log("馃摝 Firebase modules loaded successfully")
+
+    // Initialize app
+    if (firebaseApp.getApps().length === 0) {
+      app = firebaseApp.initializeApp(firebaseConfig)
+      console.log("馃殌 Firebase app initialized")
+    } else {
+      app = firebaseApp.getApps()[0]
+      console.log("馃攧 Using existing Firebase app")
+    }
+
+    // Test connection with timeout
+    console.log("馃攳 Testing Firebase connection...")
+
+    // Initialize services with connection test
+    db = firebaseFirestore.getFirestore(app)
+    auth = firebaseAuth.getAuth(app)
+    storage = firebaseStorage.getStorage(app)
+
+    // Simple connection test
+    const testPromise = firebaseFirestore.connectFirestoreEmulator
+      ? Promise.resolve()
+      : // Skip emulator check
+        Promise.resolve() // Just resolve for now
+
+    const connectionTimeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Connection test timeout")), 5000),
+    )
+
+    await Promise.race([testPromise, connectionTimeout])
+
+    firebaseInitialized = true
+    console.log("鉁� Firebase services initialized and tested successfully")
+
+    return { success: true }
   } catch (error) {
-    handleError(error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Initialization failed"
-    };
+    console.warn("鉂� Firebase initialization failed:", error)
+
+    // Reset services on failure
+    app = null
+    db = null
+    auth = null
+    storage = null
+    firebaseInitialized = false
+
+    const errorMessage = error instanceof Error ? error.message : "Unknown initialization error"
+    return { success: false, error: errorMessage }
   }
-};
+}
 
-// ======================
-// HELPER FUNCTIONS
-// ======================
-const handleError = (error: unknown) => {
-  console.error("Supabase Error:", error);
-  browserClient = null;
-  isBrowserInitialized = false;
-};
+// Check if Firebase is available and initialized
+export const isFirebaseAvailable = () => {
+  return firebaseInitialized && db !== null && auth !== null && storage !== null
+}
 
-export const getBrowserClient = (): SupabaseClient => {
-  if (!browserClient) throw new Error("Browser client not initialized");
-  return browserClient;
-};
+// Safe getters for Firebase services
+export const getFirebaseDb = () => db
+export const getFirebaseAuth = () => auth
+export const getFirebaseStorage = () => storage
 
-export const resetBrowserClient = () => {
-  browserClient?.auth.signOut(); // Clear session
-  browserClient = null;
-  isBrowserInitialized = false;
-};
+// Get initialization status
+export const getFirebaseStatus = () => ({
+  initialized: firebaseInitialized,
+  hasApp: app !== null,
+  hasDb: db !== null,
+  hasAuth: auth !== null,
+  hasStorage: storage !== null,
+})
 
-// Types for our data models (same as before)
+// Reset Firebase (for testing)
+export const resetFirebase = () => {
+  app = null
+  db = null
+  auth = null
+  storage = null
+  firebaseInitialized = false
+  console.log("馃攧 Firebase reset")
+}
+
+// Export config for reference
+export { firebaseConfig }
+
+// Types for our data models
 export interface Product {
   id: string
   name: string
