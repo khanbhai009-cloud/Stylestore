@@ -132,3 +132,34 @@ export interface Product {
 }
 
 // ... keep the rest of your interfaces as they were
+export interface User {
+  id: string
+  email: string
+  role: "user" | "admin"
+  created_at: string
+  updated_at: string
+}
+
+export interface ClickTracking {
+  id: string
+  product_id: string
+  user_ip: string
+  user_agent: string
+  clicked_at: string
+}
+
+export interface SiteAnalytics {
+  id: string
+  total_visitors: number
+  total_clicks: number
+  date: string
+  created_at: string
+}
+
+export interface ProductAnalytics {
+  product_id: string
+  product_name: string
+  total_clicks: number
+  category: string
+  price: number
+}
