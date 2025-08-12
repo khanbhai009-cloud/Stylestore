@@ -93,11 +93,20 @@ export default function AdminPanel() {
     setLoginError("")
   }
 
-  const loadData = async () => {
-    try {
-      // Fetch products
-      const fetchedProducts = await productService.getProducts()
-      setProducts(fetchedProducts)
+  async getProducts(): Promise<Product[]> {
+  try {
+    // Check if productStore exists and has getProducts method
+    if (productStore && typeof productStore.getProducts === "function") {
+      return await productStore.getProducts();
+    }
+    
+    console.error("Product store not available, using mock data");
+    return mockProducts;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return mockProducts;
+  }
+}
 
       // Fetch users count
       const users = await userService.getUsers()
