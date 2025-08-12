@@ -157,7 +157,7 @@ export const productService = {
   // Add new product with enhanced error handling
   async addProduct(product: Omit<Product, "id">): Promise<string | null> {
     try {
-      console.log("馃攧 Adding product:", product.name)
+      console.log("😏 Adding product:", product.name)
 
       // Validate required fields
       if (!product.name?.trim()) {
