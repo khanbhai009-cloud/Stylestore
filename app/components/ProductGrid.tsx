@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import ProductCard from "./ProductCard"
 import { Button } from "@/components/ui/button"
-import { productService } from "@/lib/supabaseService"
-import type { Product } from "@/lib/supabaseClient"
+import { productService } from "@/lib/firebaseService"
+import type { Product } from "@/lib/firebaseClient"
 import { Filter, Grid, List } from "lucide-react"
 
 const categories = [
