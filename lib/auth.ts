@@ -1,4 +1,4 @@
-import { userService } from "./supabaseService"
+import { userService } from "./firebaseService"
 
 // Updated admin credentials (not shown publicly)
 const ADMIN_CREDENTIALS = {
