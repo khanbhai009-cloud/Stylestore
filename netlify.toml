@@ -1,6 +1,16 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  environment = { NODE_VERSION = "22", NEXT_PRIVATE_TARGET = "server" }
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "netlify/functions"
+
+# Optional: handle clean URLs and SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
