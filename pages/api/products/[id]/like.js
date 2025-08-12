@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/firebaseClient'
+import { supabase } from '@/lib/firebase'
 
 export default async function handler(req, res) {
   const { id } = req.query
