@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Heart, Star, ShoppingCart, ImageIcon } from "lucide-react"
-import type { Product } from "@/lib/supabaseClient"
+import type { Product } from "@/lib/firebase"
 
 interface ProductCardProps {
   product: Product
