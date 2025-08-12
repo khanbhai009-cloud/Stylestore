@@ -418,14 +418,22 @@ export const storageService = {
   compressImage: StorageService.compressImage,
 }
 
-// Real-time listeners
-export const realtimeService = {
-  // Listen to products changes
-  onProductsChange(callback: (products: Product[]) => void) {
-    // Use the product store subscription
-    return productStore.subscribe(callback)
-  },
-
+// In realtimeService
+onProductsChange(callback: (products: Product[]) => void) {
+  if (!productStore || !productStore.subscribe) {
+    console.error("Product store not available for subscription");
+    return () => {};
+  }
+  
+  const unsubscribe = productStore.subscribe(callback);
+  
+  // Return a safe unsubscribe function
+  return () => {
+    if (unsubscribe && typeof unsubscribe === "function") {
+      unsubscribe();
+    }
+  };
+}
   // Listen to analytics changes
   onAnalyticsChange(callback: (analytics: SiteAnalytics | null) => void) {
     // Return mock analytics immediately
