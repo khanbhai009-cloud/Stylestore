@@ -419,7 +419,7 @@ export const storageService = {
 }
 
 // In realtimeService
-onProductsChange(callback: (products: Product[]) => void) {
+onProductsChange: (callback: (products: Product[]) => void) => {
   if (!productStore || !productStore.subscribe) {
     console.error("Product store not available for subscription");
     return () => {};
