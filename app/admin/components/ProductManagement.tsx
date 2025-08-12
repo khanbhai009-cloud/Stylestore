@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Edit, Trash2 } from "lucide-react"
-import type { Product } from "@/lib/supabase"
+import type { Product } from "@/lib/firebase"
 import AddProductModal from "./AddProductModal"
 import EditProductModal from "./EditProductModal"
 
