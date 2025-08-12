@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X, Upload, ImageIcon, CheckCircle, AlertCircle } from "lucide-react"
-import { productService, storageService } from "@/lib/supabaseService"
+import { productService, storageService } from "@/lib/firebaseService"
 
 interface AddProductModalProps {
   isOpen: boolean
