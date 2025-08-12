@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, AlertCircle, Database, Users, BarChart3, Settings, ArrowLeft, Zap, Info } from "lucide-react"
-import { initializeSupabase, getSupabaseStatus, resetSupabase } from "@/lib/firebase"
+import { initializeFirebaseServices, getFirebaseStatus, resetFirebase } from "@/lib/firebase"
 import Link from "next/link"
 
-export default function SupabaseSetup() {
+export default function FirebaseSetup() {
   const [setupStatus, setSetupStatus] = useState({
-    supabase: false,
+    firebase: false,
     products: false,
     users: false,
     analytics: false,
@@ -18,36 +18,36 @@ export default function SupabaseSetup() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [supabaseDetails, setSupabaseDetails] = useState<string>("")
+  const [firebaseDetails, setFirebaseDetails] = useState<string>("")
 
-  const initializeSupabaseClient = async () => {
+  const initializeFirebase = async () => {
     try {
       setLoading(true)
       setError(null)
-      setSupabaseDetails("")
+      setFirebaseDetails("")
 
-      console.log("🚀 Starting Supabase initialization...")
+      console.log("馃敟 Starting Firebase initialization...")
 
       // Reset any previous state
-      resetSupabase()
+      resetFirebase()
 
-      const result = await initializeSupabase()
+      const result = await initializeFirebaseServices()
 
       if (result.success) {
-        setSetupStatus((prev) => ({ ...prev, supabase: true }))
-        setSupabaseDetails("Supabase services initialized successfully! ✅")
-        console.log("✅ Supabase initialized successfully!")
+        setSetupStatus((prev) => ({ ...prev, firebase: true }))
+        setFirebaseDetails("Firebase services initialized successfully! 鉁�")
+        console.log("鉁� Firebase initialized successfully!")
       } else {
-        throw new Error(result.error || "Supabase initialization failed")
+        throw new Error(result.error || "Firebase initialization failed")
       }
     } catch (err) {
-      console.error("❌ Error initializing Supabase:", err)
+      console.error("鉂� Error initializing Firebase:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
-      setError(`Supabase initialization failed: ${errorMessage}`)
+      setError(`Firebase initialization failed: ${errorMessage}`)
 
-      // Show Supabase status for debugging
-      const status = getSupabaseStatus()
-      setSupabaseDetails(`Debug info: ${JSON.stringify(status, null, 2)}`)
+      // Show Firebase status for debugging
+      const status = getFirebaseStatus()
+      setFirebaseDetails(`Debug info: ${JSON.stringify(status, null, 2)}`)
     } finally {
       setLoading(false)
     }
@@ -58,18 +58,18 @@ export default function SupabaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.supabase) {
-        throw new Error("Please initialize Supabase first")
+      if (!setupStatus.firebase) {
+        throw new Error("Please initialize Firebase first")
       }
 
-      // Simulate Supabase table creation
-      console.log("📦 Setting up products table...")
+      // Simulate Firebase Firestore operations
+      console.log("馃摝 Setting up products collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, products: true }))
-      console.log("✅ Products setup completed!")
+      console.log("鉁� Products setup completed!")
     } catch (err) {
-      console.error("❌ Error setting up products:", err)
+      console.error("鉂� Error setting up products:", err)
       setError(`Products setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -81,18 +81,18 @@ export default function SupabaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.supabase) {
-        throw new Error("Please initialize Supabase first")
+      if (!setupStatus.firebase) {
+        throw new Error("Please initialize Firebase first")
       }
 
-      // Simulate Supabase Auth and table operations
-      console.log("👥 Setting up users table...")
+      // Simulate Firebase Auth and Firestore operations
+      console.log("馃懃 Setting up users collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, users: true }))
-      console.log("✅ Users setup completed!")
+      console.log("鉁� Users setup completed!")
     } catch (err) {
-      console.error("❌ Error setting up users:", err)
+      console.error("鉂� Error setting up users:", err)
       setError(`Users setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -104,18 +104,18 @@ export default function SupabaseSetup() {
       setLoading(true)
       setError(null)
 
-      if (!setupStatus.supabase) {
-        throw new Error("Please initialize Supabase first")
+      if (!setupStatus.firebase) {
+        throw new Error("Please initialize Firebase first")
       }
 
-      // Simulate Supabase analytics setup
-      console.log("📊 Setting up analytics table...")
+      // Simulate Firebase Analytics setup
+      console.log("馃搳 Setting up analytics collection...")
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
-      console.log("✅ Analytics setup completed!")
+      console.log("鉁� Analytics setup completed!")
     } catch (err) {
-      console.error("❌ Error setting up analytics:", err)
+      console.error("鉂� Error setting up analytics:", err)
       setError(`Analytics setup failed: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
@@ -127,14 +127,14 @@ export default function SupabaseSetup() {
       setLoading(true)
       setError(null)
 
-      console.log("🚀 Starting complete Supabase setup...")
+      console.log("馃殌 Starting complete Firebase setup...")
 
-      // Initialize Supabase first
-      const supabaseResult = await initializeSupabase()
-      if (!supabaseResult.success) {
-        throw new Error(supabaseResult.error || "Supabase initialization failed")
+      // Initialize Firebase first
+      const firebaseResult = await initializeFirebaseServices()
+      if (!firebaseResult.success) {
+        throw new Error(firebaseResult.error || "Firebase initialization failed")
       }
-      setSetupStatus((prev) => ({ ...prev, supabase: true }))
+      setSetupStatus((prev) => ({ ...prev, firebase: true }))
 
       // Setup other components
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -147,10 +147,10 @@ export default function SupabaseSetup() {
       setSetupStatus((prev) => ({ ...prev, analytics: true }))
 
       setSetupStatus((prev) => ({ ...prev, complete: true }))
-      setSupabaseDetails("🎉 Complete Supabase setup finished successfully!")
-      console.log("🎉 Complete setup finished!")
+      setFirebaseDetails("馃帀 Complete Firebase setup finished successfully!")
+      console.log("馃帀 Complete setup finished!")
     } catch (err) {
-      console.error("❌ Complete setup failed:", err)
+      console.error("鉂� Complete setup failed:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
       setError(`Complete setup failed: ${errorMessage}`)
     } finally {
@@ -158,20 +158,20 @@ export default function SupabaseSetup() {
     }
   }
 
-  const skipSupabaseSetup = () => {
+  const skipFirebaseSetup = () => {
     setSetupStatus({
-      supabase: false,
+      firebase: false,
       products: true,
       users: true,
       analytics: true,
       complete: true,
     })
-    setSupabaseDetails("✅ Skipped Supabase setup - Demo mode will continue working perfectly!")
+    setFirebaseDetails("鉁� Skipped Firebase setup - Demo mode will continue working perfectly!")
     setError(null)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-red-900 p-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -182,8 +182,8 @@ export default function SupabaseSetup() {
             </Button>
           </Link>
           <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-white mb-4">🚀 Supabase Setup</h1>
-            <p className="text-green-200 text-lg">Optional Supabase initialization for production deployment</p>
+            <h1 className="text-4xl font-bold text-white mb-4">馃敟 Firebase Setup</h1>
+            <p className="text-red-200 text-lg">Optional Firebase initialization for production deployment</p>
           </div>
         </div>
 
@@ -200,8 +200,8 @@ export default function SupabaseSetup() {
                   </p>
                 </div>
               </div>
-              <Button onClick={skipSupabaseSetup} variant="outline" className="bg-transparent">
-                Skip Supabase Setup
+              <Button onClick={skipFirebaseSetup} variant="outline" className="bg-transparent">
+                Skip Firebase Setup
               </Button>
             </div>
           </CardContent>
@@ -213,12 +213,12 @@ export default function SupabaseSetup() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-red-600">
                   <AlertCircle className="h-5 w-5" />
-                  <span className="font-medium">Supabase Setup Error</span>
+                  <span className="font-medium">Firebase Setup Error</span>
                 </div>
                 <p className="text-sm text-red-700">{error}</p>
                 <div className="bg-red-50 rounded p-3 mt-2">
                   <p className="text-xs text-red-600">
-                    <strong>Don't worry!</strong> Your store works perfectly without Supabase. This setup is only needed
+                    <strong>Don't worry!</strong> Your store works perfectly without Firebase. This setup is only needed
                     for production deployment with real-time features.
                   </p>
                 </div>
@@ -227,48 +227,48 @@ export default function SupabaseSetup() {
           </Card>
         )}
 
-        {supabaseDetails && (
+        {firebaseDetails && (
           <Card className="mb-6 border-blue-500">
             <CardContent className="p-4">
               <div className="flex items-start space-x-2 text-blue-600">
                 <Info className="h-5 w-5 mt-0.5" />
                 <div>
-                  <span className="font-medium">Supabase Status</span>
-                  <pre className="text-xs text-blue-700 mt-1 whitespace-pre-wrap">{supabaseDetails}</pre>
+                  <span className="font-medium">Firebase Status</span>
+                  <pre className="text-xs text-blue-700 mt-1 whitespace-pre-wrap">{firebaseDetails}</pre>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Supabase Initialization */}
+        {/* Firebase Initialization */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Zap className="h-5 w-5" />
-              <span>Initialize Supabase Services</span>
-              {setupStatus.supabase && <CheckCircle className="h-5 w-5 text-green-600" />}
+              <span>Initialize Firebase Services</span>
+              {setupStatus.firebase && <CheckCircle className="h-5 w-5 text-green-600" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Connect to Supabase for production features (optional - your store already works!)
+              Connect to Firebase for production features (optional - your store already works!)
             </p>
             <div className="flex space-x-2">
               <Button
-                onClick={initializeSupabaseClient}
-                disabled={loading || setupStatus.supabase}
+                onClick={initializeFirebase}
+                disabled={loading || setupStatus.firebase}
                 className="flex-1"
-                variant={setupStatus.supabase ? "secondary" : "default"}
+                variant={setupStatus.firebase ? "secondary" : "default"}
               >
-                {setupStatus.supabase ? "✅ Supabase Ready" : loading ? "Initializing..." : "Initialize Supabase"}
+                {setupStatus.firebase ? "鉁� Firebase Ready" : loading ? "Initializing..." : "Initialize Firebase"}
               </Button>
               <Button
                 onClick={() => {
-                  resetSupabase()
-                  setSetupStatus((prev) => ({ ...prev, supabase: false }))
+                  resetFirebase()
+                  setSetupStatus((prev) => ({ ...prev, firebase: false }))
                   setError(null)
-                  setSupabaseDetails("")
+                  setFirebaseDetails("")
                 }}
                 variant="outline"
                 disabled={loading}
@@ -291,14 +291,14 @@ export default function SupabaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup products table in Supabase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup products collection in Firebase</p>
               <Button
                 onClick={setupProducts}
                 disabled={loading || setupStatus.products}
                 className="w-full"
                 variant={setupStatus.products ? "secondary" : "default"}
               >
-                {setupStatus.products ? "✅ Complete" : loading ? "Setting up..." : "Setup Products"}
+                {setupStatus.products ? "鉁� Complete" : loading ? "Setting up..." : "Setup Products"}
               </Button>
             </CardContent>
           </Card>
@@ -313,14 +313,14 @@ export default function SupabaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup user authentication in Supabase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup user authentication in Firebase</p>
               <Button
                 onClick={setupUsers}
                 disabled={loading || setupStatus.users}
                 className="w-full"
                 variant={setupStatus.users ? "secondary" : "default"}
               >
-                {setupStatus.users ? "✅ Complete" : loading ? "Setting up..." : "Setup Users"}
+                {setupStatus.users ? "鉁� Complete" : loading ? "Setting up..." : "Setup Users"}
               </Button>
             </CardContent>
           </Card>
@@ -335,14 +335,14 @@ export default function SupabaseSetup() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Setup analytics table in Supabase</p>
+              <p className="text-sm text-gray-600 mb-4">Setup analytics collection in Firebase</p>
               <Button
                 onClick={setupAnalytics}
                 disabled={loading || setupStatus.analytics}
                 className="w-full"
                 variant={setupStatus.analytics ? "secondary" : "default"}
               >
-                {setupStatus.analytics ? "✅ Complete" : loading ? "Setting up..." : "Setup Analytics"}
+                {setupStatus.analytics ? "鉁� Complete" : loading ? "Setting up..." : "Setup Analytics"}
               </Button>
             </CardContent>
           </Card>
@@ -353,26 +353,26 @@ export default function SupabaseSetup() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Settings className="h-5 w-5" />
-              <span>Complete Supabase Setup</span>
+              <span>Complete Firebase Setup</span>
               {setupStatus.complete && <CheckCircle className="h-5 w-5 text-green-600" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div>
-                <p className="text-gray-600 mb-2">Initialize all Supabase components at once</p>
+                <p className="text-gray-600 mb-2">Initialize all Firebase components at once</p>
                 <div className="flex space-x-2">
-                  <Badge variant={setupStatus.supabase ? "default" : "secondary"}>
-                    Supabase {setupStatus.supabase ? "✅" : "⏳"}
+                  <Badge variant={setupStatus.firebase ? "default" : "secondary"}>
+                    Firebase {setupStatus.firebase ? "鉁�" : "鈴�"}
                   </Badge>
                   <Badge variant={setupStatus.products ? "default" : "secondary"}>
-                    Products {setupStatus.products ? "✅" : "⏳"}
+                    Products {setupStatus.products ? "鉁�" : "鈴�"}
                   </Badge>
                   <Badge variant={setupStatus.users ? "default" : "secondary"}>
-                    Users {setupStatus.users ? "✅" : "⏳"}
+                    Users {setupStatus.users ? "鉁�" : "鈴�"}
                   </Badge>
                   <Badge variant={setupStatus.analytics ? "default" : "secondary"}>
-                    Analytics {setupStatus.analytics ? "✅" : "⏳"}
+                    Analytics {setupStatus.analytics ? "鉁�" : "鈴�"}
                   </Badge>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function SupabaseSetup() {
                   size="lg"
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  {setupStatus.complete ? "✅ Setup Complete" : loading ? "Setting up..." : "🚀 Setup All"}
+                  {setupStatus.complete ? "鉁� Setup Complete" : loading ? "Setting up..." : "馃殌 Setup All"}
                 </Button>
               </div>
             </div>
@@ -393,14 +393,14 @@ export default function SupabaseSetup() {
         {/* Instructions */}
         <Card>
           <CardHeader>
-            <CardTitle>📋 What's Available Right Now</CardTitle>
+            <CardTitle>馃搵 What's Available Right Now</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
-                  <strong>✅ Your StyleStore is 100% functional!</strong> All features work perfectly in demo mode.
-                  Supabase setup is purely optional for production deployment.
+                  <strong>鉁� Your StyleStore is 100% functional!</strong> All features work perfectly in demo mode.
+                  Firebase setup is purely optional for production deployment.
                 </p>
               </div>
 
@@ -408,40 +408,39 @@ export default function SupabaseSetup() {
                 <h3 className="font-semibold text-gray-900 mb-2">Working Features (No Setup Required):</h3>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
                   <li>
-                    🏠 Browse products:{" "}
+                    馃彔 Browse products:{" "}
                     <Link href="/" className="text-blue-600 hover:underline">
                       Homepage
                     </Link>
                   </li>
                   <li>
-                    🔧 Admin panel:{" "}
+                    馃敡 Admin panel:{" "}
                     <Link href="/admin" className="text-blue-600 hover:underline">
                       Admin Dashboard
                     </Link>
                   </li>
-                  <li>🔑 Login: admin@gmail.com / admin123</li>
-                  <li>📦 8 sample products with categories</li>
-                  <li>📊 Click tracking and analytics</li>
-                  <li>🎨 Responsive design and filtering</li>
-                  <li>💼 Product management interface</li>
+                  <li>馃攽 Login: admin@gmail.com / admin123</li>
+                  <li>馃摝 8 sample products with categories</li>
+                  <li>馃搳 Click tracking and analytics</li>
+                  <li>馃帹 Responsive design and filtering</li>
+                  <li>馃捈 Product management interface</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Supabase Benefits (When Working):</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Firebase Benefits (When Working):</h3>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  <li>☁️ Real-time data synchronization</li>
-                  <li>🖼️ Storage for product images</li>
-                  <li>📈 Scalable database infrastructure</li>
-                  <li>🔐 Production user authentication</li>
-                  <li>🚀 Ready for live deployment</li>
-                  <li>🔍 Postgres SQL database</li>
+                  <li>鈽侊笍 Real-time data synchronization</li>
+                  <li>馃柤锔� Cloud storage for product images</li>
+                  <li>馃搱 Scalable database infrastructure</li>
+                  <li>馃攼 Production user authentication</li>
+                  <li>馃殌 Ready for live deployment</li>
                 </ul>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>💡 Pro Tip:</strong> Supabase setup can be tricky and is completely optional. Your demo store
+                  <strong>馃挕 Pro Tip:</strong> Firebase setup can be tricky and is completely optional. Your demo store
                   has all the features you need to test and showcase the platform!
                 </p>
               </div>
