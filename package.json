@@ -72,10 +72,4 @@
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }
-"scripts": {
-  "type-check": "tsc --noEmit",
-  "lint": "eslint . --ext .ts,.tsx",
-  "build": "next build",
-  "prebuild": "pnpm run type-check && pnpm run lint"
- }
 }
