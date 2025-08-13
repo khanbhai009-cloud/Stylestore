@@ -93,7 +93,7 @@ export default function AdminPanel() {
     setLoginError("")
   }
 
-  async getProducts(): Promise<Product[]> {
+ const async getProducts(): Promise<Product[]> {
   try {
     // Check if productStore exists and has getProducts method
     if (productStore && typeof productStore.getProducts === "function") {
