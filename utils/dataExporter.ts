@@ -1,96 +1,107 @@
+<<<<<<< HEAD
 import type { Product } from "@/lib/firebase"
+=======
+import type { Product } from '@/lib/supabase';
+>>>>>>> 04c852e (Fix code style and small errors)
 
 export interface ExportData {
-  products: Product[]
+  products: Product[];
   analytics: {
-    totalUsers: number
-    totalClicks: number
-    totalProducts: number
-    topProducts: Product[]
-  }
+    totalUsers: number;
+    totalClicks: number;
+    totalProducts: number;
+    topProducts: Product[];
+  };
 }
 
 export class DataExporter {
   static exportToCSV(data: any[], filename: string, headers: string[]) {
     const csvContent = [
-      headers.join(","),
+      headers.join(','),
       ...data.map((row) =>
         headers
           .map((header) => {
-            const value = row[header]
+            const value = row[header];
             if (Array.isArray(value)) {
-              return `"${value.join(";")}"`
+              return `"${value.join(';')}"`;
             }
-            if (typeof value === "string" && (value.includes(",") || value.includes('"'))) {
-              return `"${value.replace(/"/g, '""')}"`
+            if (
+              typeof value === 'string' &&
+              (value.includes(',') || value.includes('"'))
+            ) {
+              return `"${value.replace(/"/g, '""')}"`;
             }
-            return value !== null && value !== undefined ? value : ""
+            return value !== null && value !== undefined ? value : '';
           })
-          .join(","),
+          .join(',')
       ),
-    ].join("\n")
+    ].join('\n');
 
-    this.downloadFile(csvContent, filename, "text/csv")
+    this.downloadFile(csvContent, filename, 'text/csv');
   }
 
   static exportToJSON(data: any, filename: string) {
-    const jsonContent = JSON.stringify(data, null, 2)
-    this.downloadFile(jsonContent, filename, "application/json")
+    const jsonContent = JSON.stringify(data, null, 2);
+    this.downloadFile(jsonContent, filename, 'application/json');
   }
 
   static generateSQLInserts(products: Product[], analytics: any) {
     const sqlStatements = [
-      "-- StyleStore Data Export - SQL Insert Statements",
-      "-- Generated on: " + new Date().toISOString(),
-      "-- Instructions: Run these statements in your Supabase SQL editor",
-      "",
-      "-- Clear existing data (optional)",
-      "-- DELETE FROM products;",
-      "-- DELETE FROM site_analytics;",
-      "",
-      "-- Products Table Inserts",
+      '-- StyleStore Data Export - SQL Insert Statements',
+      '-- Generated on: ' + new Date().toISOString(),
+      '-- Instructions: Run these statements in your Supabase SQL editor',
+      '',
+      '-- Clear existing data (optional)',
+      '-- DELETE FROM products;',
+      '-- DELETE FROM site_analytics;',
+      '',
+      '-- Products Table Inserts',
       ...products.map((product) => {
-        const tags = product.tags.map((tag) => `"${tag}"`).join(",")
-        return `INSERT INTO products (name, description, price, original_price, image_url, category, tags, affiliate_link, clicks, is_active) VALUES ('${product.name.replace(/'/g, "''")}', '${product.description.replace(/'/g, "''")}', ${product.price}, ${product.original_price || "NULL"}, '${product.image_url}', '${product.category}', ARRAY[${tags}], '${product.affiliate_link}', ${product.clicks}, ${product.is_active});`
+        const tags = product.tags.map((tag) => `"${tag}"`).join(',');
+        return `INSERT INTO products (name, description, price, original_price, image_url, category, tags, affiliate_link, clicks, is_active) VALUES ('${product.name.replace(/'/g, "''")}', '${product.description.replace(/'/g, "''")}', ${product.price}, ${product.original_price || 'NULL'}, '${product.image_url}', '${product.category}', ARRAY[${tags}], '${product.affiliate_link}', ${product.clicks}, ${product.is_active});`;
       }),
-      "",
-      "-- Site Analytics Insert",
+      '',
+      '-- Site Analytics Insert',
       `INSERT INTO site_analytics (total_visitors, total_clicks, date) VALUES (${analytics.totalUsers}, ${analytics.totalClicks}, CURRENT_DATE);`,
-      "",
-      "-- Create admin user (password: admin123)",
+      '',
+      '-- Create admin user (password: admin123)',
       `INSERT INTO users (email, password_hash, role) VALUES ('admin@stylestore.com', '$2b$10$rOzJqQqQqQqQqQqQqQqQqOzJqQqQqQqQqQqQqQqQqOzJqQqQqQqQqQ', 'admin') ON CONFLICT (email) DO NOTHING;`,
-    ].join("\n")
+    ].join('\n');
 
-    return sqlStatements
+    return sqlStatements;
   }
 
   static exportCompleteBackup(exportData: ExportData) {
     const backup = {
       exportDate: new Date().toISOString(),
-      version: "1.0",
+      version: '1.0',
       data: {
         products: exportData.products,
         analytics: exportData.analytics,
         metadata: {
           totalProducts: exportData.products.length,
           totalClicks: exportData.analytics.totalClicks,
-          exportedBy: "StyleStore Admin Panel",
+          exportedBy: 'StyleStore Admin Panel',
         },
       },
-    }
+    };
 
-    const filename = `stylestore-complete-backup-${new Date().toISOString().split("T")[0]}.json`
-    this.exportToJSON(backup, filename)
+    const filename = `stylestore-complete-backup-${new Date().toISOString().split('T')[0]}.json`;
+    this.exportToJSON(backup, filename);
   }
 
-  private static downloadFile(content: string, filename: string, mimeType: string) {
-    const blob = new Blob([content], { type: mimeType })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = filename
-    link.click()
-    window.URL.revokeObjectURL(url)
+  private static downloadFile(
+    content: string,
+    filename: string,
+    mimeType: string
+  ) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   static generateMigrationGuide() {
@@ -145,8 +156,12 @@ If you encounter issues during migration:
 4. Test with a small subset of data first
 
 Generated on: ${new Date().toISOString()}
-    `.trim()
+    `.trim();
 
-    this.downloadFile(guide, `stylestore-migration-guide-${new Date().toISOString().split("T")[0]}.md`, "text/markdown")
+    this.downloadFile(
+      guide,
+      `stylestore-migration-guide-${new Date().toISOString().split('T')[0]}.md`,
+      'text/markdown'
+    );
   }
 }

@@ -1,7 +1,8 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,36 +11,51 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X } from "lucide-react"
 import { supabase, type Product } from "@/lib/firebase"
+=======
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { X } from 'lucide-react';
+import { supabase, type Product } from '@/lib/supabase';
+>>>>>>> 04c852e (Fix code style and small errors)
 
 interface EditProductModalProps {
-  product: Product | null
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
+  product: Product | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
 const categories = [
-  { value: "watches", label: "Watches" },
-  { value: "pants", label: "Pants" },
-  { value: "jeans", label: "Jeans" },
-  { value: "kurta", label: "Kurta" },
-  { value: "health-fitness", label: "Health & Fitness" },
-  { value: "beauty", label: "Beauty" },
-]
+  { value: 'watches', label: 'Watches' },
+  { value: 'pants', label: 'Pants' },
+  { value: 'jeans', label: 'Jeans' },
+  { value: 'kurta', label: 'Kurta' },
+  { value: 'health-fitness', label: 'Health & Fitness' },
+  { value: 'beauty', label: 'Beauty' },
+];
 
-export default function EditProductModal({ product, isOpen, onClose, onSuccess }: EditProductModalProps) {
+export default function EditProductModal({
+  product,
+  isOpen,
+  onClose,
+  onSuccess,
+}: EditProductModalProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    original_price: "",
-    image_url: "",
-    category: "watches",
-    tags: "",
-    affiliate_link: "",
+    name: '',
+    description: '',
+    price: '',
+    original_price: '',
+    image_url: '',
+    category: 'watches',
+    tags: '',
+    affiliate_link: '',
     is_active: true,
-  })
-  const [loading, setLoading] = useState(false)
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -47,56 +63,64 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
         name: product.name,
         description: product.description,
         price: product.price.toString(),
-        original_price: product.original_price?.toString() || "",
+        original_price: product.original_price?.toString() || '',
         image_url: product.image_url,
         category: product.category,
-        tags: product.tags.join(", "),
+        tags: product.tags.join(', '),
         affiliate_link: product.affiliate_link,
         is_active: product.is_active,
-      })
+      });
     }
-  }, [product])
+  }, [product]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!product) return
+    e.preventDefault();
+    if (!product) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       const { error } = await supabase
-        .from("products")
+        .from('products')
         .update({
           name: formData.name,
           description: formData.description,
           price: Number.parseFloat(formData.price),
-          original_price: formData.original_price ? Number.parseFloat(formData.original_price) : null,
+          original_price: formData.original_price
+            ? Number.parseFloat(formData.original_price)
+            : null,
           image_url: formData.image_url,
-          category: formData.category as "watches" | "pants" | "jeans" | "kurta" | "health-fitness" | "beauty",
+          category: formData.category as
+            | 'watches'
+            | 'pants'
+            | 'jeans'
+            | 'kurta'
+            | 'health-fitness'
+            | 'beauty',
           tags: formData.tags
-            .split(",")
+            .split(',')
             .map((tag) => tag.trim())
             .filter((tag) => tag),
           affiliate_link: formData.affiliate_link,
           is_active: formData.is_active,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", product.id)
+        .eq('id', product.id);
 
-      if (error) throw error
+      if (error) throw error;
 
-      alert("Product updated successfully!")
-      onSuccess()
-      onClose()
+      alert('Product updated successfully!');
+      onSuccess();
+      onClose();
     } catch (error) {
-      console.error("Error updating product:", error)
-      alert("Failed to update product!")
+      console.error('Error updating product:', error);
+      alert('Failed to update product!');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen || !product) return null
+  if (!isOpen || !product) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -116,7 +140,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -126,7 +152,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 required
               />
             </div>
@@ -139,7 +167,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
                   type="number"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -150,7 +180,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
                   type="number"
                   step="0.01"
                   value={formData.original_price}
-                  onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, original_price: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -161,7 +193,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
                 id="image_url"
                 type="url"
                 value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, image_url: e.target.value })
+                }
                 required
               />
             </div>
@@ -171,7 +205,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
               <select
                 id="category"
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
@@ -188,7 +224,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
               <Input
                 id="tags"
                 value={formData.tags}
-                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, tags: e.target.value })
+                }
                 placeholder="New, Best Seller, Popular"
               />
             </div>
@@ -199,7 +237,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
                 id="affiliate_link"
                 type="url"
                 value={formData.affiliate_link}
-                onChange={(e) => setFormData({ ...formData, affiliate_link: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, affiliate_link: e.target.value })
+                }
                 required
               />
             </div>
@@ -209,7 +249,9 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
                 type="checkbox"
                 id="is_active"
                 checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                onChange={(e) =>
+                  setFormData({ ...formData, is_active: e.target.checked })
+                }
                 className="rounded"
               />
               <Label htmlFor="is_active">Product is active</Label>
@@ -217,7 +259,7 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
 
             <div className="flex space-x-4">
               <Button type="submit" disabled={loading} className="flex-1">
-                {loading ? "Updating..." : "Update Product"}
+                {loading ? 'Updating...' : 'Update Product'}
               </Button>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
@@ -227,5 +269,5 @@ export default function EditProductModal({ product, isOpen, onClose, onSuccess }
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

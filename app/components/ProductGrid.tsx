@@ -1,37 +1,38 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import ProductCard from "./ProductCard"
-import { Button } from "@/components/ui/button"
-import { productService } from "@/lib/firebaseService"
-import type { Product } from "@/lib/firebase"
-import { Filter, Grid, List } from "lucide-react"
+import { useState, useEffect } from 'react';
+import ProductCard from './ProductCard';
+import { Button } from '@/components/ui/button';
+import { productService } from '@/lib/firebaseService';
+import type { Product } from '@/lib/firebase';
+import { Filter, Grid, List } from 'lucide-react';
 
 const categories = [
-  { name: "All Products", value: "all" },
-  { name: "Watches", value: "watches" },
-  { name: "Pants", value: "pants" },
-  { name: "Jeans", value: "jeans" },
-  { name: "Kurta", value: "kurta" },
-  { name: "Health & Fitness", value: "health-fitness" },
-  { name: "Beauty", value: "beauty" },
-]
+  { name: 'All Products', value: 'all' },
+  { name: 'Watches', value: 'watches' },
+  { name: 'Pants', value: 'pants' },
+  { name: 'Jeans', value: 'jeans' },
+  { name: 'Kurta', value: 'kurta' },
+  { name: 'Health & Fitness', value: 'health-fitness' },
+  { name: 'Beauty', value: 'beauty' },
+];
 
 const sortOptions = [
-  { name: "Most Popular", value: "popular" },
-  { name: "Newest First", value: "newest" },
-  { name: "Price: Low to High", value: "price-low" },
-  { name: "Price: High to Low", value: "price-high" },
-]
+  { name: 'Most Popular', value: 'popular' },
+  { name: 'Newest First', value: 'newest' },
+  { name: 'Price: Low to High', value: 'price-low' },
+  { name: 'Price: High to Low', value: 'price-high' },
+];
 
 export default function ProductGrid() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
-  const [sortBy, setSortBy] = useState<string>("popular")
-  const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('popular');
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+<<<<<<< HEAD
     // Subscribe to real-time product updates
     useEffect(() => {
   const fetchProducts = async () => {
@@ -52,54 +53,73 @@ export default function ProductGrid() {
     }
   };
 }, []);
+=======
+  useEffect(() => {
+    fetchProducts();
+
+    // Subscribe to real-time product updates
+    const unsubscribe = productService.subscribe((updatedProducts) => {
+      setProducts(updatedProducts);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+>>>>>>> 04c852e (Fix code style and small errors)
 
   useEffect(() => {
-    let filtered = products
+    let filtered = products;
 
     // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((product) => product.category === selectedCategory)
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(
+        (product) => product.category === selectedCategory
+      );
     }
 
     // Sort products
     switch (sortBy) {
-      case "price-low":
-        filtered = [...filtered].sort((a, b) => a.price - b.price)
-        break
-      case "price-high":
-        filtered = [...filtered].sort((a, b) => b.price - a.price)
-        break
-      case "newest":
-        filtered = [...filtered].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        break
-      case "popular":
+      case 'price-low':
+        filtered = [...filtered].sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filtered = [...filtered].sort((a, b) => b.price - a.price);
+        break;
+      case 'newest':
+        filtered = [...filtered].sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        break;
+      case 'popular':
       default:
-        filtered = [...filtered].sort((a, b) => b.clicks - a.clicks)
-        break
+        filtered = [...filtered].sort((a, b) => b.clicks - a.clicks);
+        break;
     }
 
-    setFilteredProducts(filtered)
-  }, [products, selectedCategory, sortBy])
+    setFilteredProducts(filtered);
+  }, [products, selectedCategory, sortBy]);
 
   const fetchProducts = async () => {
     try {
-      setLoading(true)
-      const fetchedProducts = await productService.getProducts()
-      setProducts(fetchedProducts)
+      setLoading(true);
+      const fetchedProducts = await productService.getProducts();
+      setProducts(fetchedProducts);
     } catch (error) {
-      console.error("Error fetching products:", error)
+      console.error('Error fetching products:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleProductClick = async (productId: string) => {
     try {
-      await productService.incrementClicks(productId)
+      await productService.incrementClicks(productId);
     } catch (error) {
-      console.error("Failed to track click:", error)
+      console.error('Failed to track click:', error);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -110,7 +130,7 @@ export default function ProductGrid() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   return (
@@ -118,10 +138,12 @@ export default function ProductGrid() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Discover Your Perfect Style</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Discover Your Perfect Style
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Browse our curated collection of fashion essentials, each piece selected to bring joy and style to your
-            wardrobe.
+            Browse our curated collection of fashion essentials, each piece
+            selected to bring joy and style to your wardrobe.
           </p>
         </div>
 
@@ -133,13 +155,23 @@ export default function ProductGrid() {
               {categories.map((category) => (
                 <Button
                   key={category.value}
-                  variant={selectedCategory === category.value ? "default" : "outline"}
+                  variant={
+                    selectedCategory === category.value ? 'default' : 'outline'
+                  }
                   onClick={() => setSelectedCategory(category.value)}
                   className="text-sm"
                 >
                   {category.name}
                   <span className="ml-2 text-xs opacity-70">
-                    ({products.filter((p) => category.value === "all" || p.category === category.value).length})
+                    (
+                    {
+                      products.filter(
+                        (p) =>
+                          category.value === 'all' ||
+                          p.category === category.value
+                      ).length
+                    }
+                    )
                   </span>
                 </Button>
               ))}
@@ -164,16 +196,16 @@ export default function ProductGrid() {
 
               <div className="flex items-center gap-1 border rounded-md">
                 <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode("grid")}
+                  onClick={() => setViewMode('grid')}
                 >
                   <Grid className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode("list")}
+                  onClick={() => setViewMode('list')}
                 >
                   <List className="h-4 w-4" />
                 </Button>
@@ -192,27 +224,44 @@ export default function ProductGrid() {
         {/* Products Grid */}
         <div
           className={`grid gap-6 ${
-            viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
+            viewMode === 'grid'
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              : 'grid-cols-1'
           }`}
         >
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onProductClick={handleProductClick} viewMode={viewMode} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onProductClick={handleProductClick}
+              viewMode={viewMode}
+            />
           ))}
         </div>
 
         {filteredProducts.length === 0 && !loading && (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
+<<<<<<< HEAD
               <div className="text-6xl mb-4">馃攳</div>
               <h3 className="text-xl font-semibold text-foreground mb-2">No products found</h3>
+=======
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                No products found
+              </h3>
+>>>>>>> 04c852e (Fix code style and small errors)
               <p className="text-muted-foreground mb-6">
-                We couldn't find any products in this category. Try browsing all products or check back later.
+                We couldn't find any products in this category. Try browsing all
+                products or check back later.
               </p>
-              <Button onClick={() => setSelectedCategory("all")}>View All Products</Button>
+              <Button onClick={() => setSelectedCategory('all')}>
+                View All Products
+              </Button>
             </div>
           </div>
         )}
       </div>
     </section>
-  )
+  );
 }
