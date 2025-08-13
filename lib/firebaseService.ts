@@ -431,22 +431,21 @@ onProductsChange: (callback: (products: Product[]) => void) => {
   return () => {
     if (unsubscribe && typeof unsubscribe === "function") {
       unsubscribe();
-    }
-  };
 }
-  // Listen to analytics changes
-  onAnalyticsChange(callback: (analytics: SiteAnalytics | null) => void) {
-    // Return mock analytics immediately
-    callback({
-      id: "mock",
-      total_visitors: 1247,
-      total_clicks: productStore.getStats().totalClicks,
-      date: new Date().toISOString().split("T")[0],
-      created_at: new Date().toISOString(),
-    })
-    // Return a dummy unsubscribe function
-    return () => {
-      console.log("Mock: Unsubscribing from analytics")
-    }
-  },
+  
+// Listen to analytics changes
+onAnalyticsChange(callback: (analytics: SiteAnalytics | null) => void) {
+  // Return mock analytics immediately
+  callback({
+    id: "mock",
+    total_visitors: 1247,
+    total_clicks: productStore.getStats().totalClicks,
+    date: new Date().toISOString().split("T")[0],
+    created_at: new Date().toISOString(),
+  });
+
+  // Return a dummy unsubscribe function
+  return () => {
+    console.log("Mock: Unsubscribing from analytics");
+  };
 }
